@@ -3,6 +3,7 @@ Executa o pipeline completo de busca de editais uma vez.
 Use este script para rodar manualmente ou via cron.
 """
 
+import os
 import sys
 from datetime import date, datetime
 from pathlib import Path
@@ -14,6 +15,7 @@ from editais_agent.agent import run_search
 from editais_agent.classifier import score_edital
 from editais_agent.storage import init_db, upsert_edital, get_active_editais, save_run, mark_expired_editais
 from editais_agent.reporter import generate_markdown, generate_html
+from editais_agent.emailer import send_report
 
 
 def run_pipeline():
@@ -61,7 +63,19 @@ def run_pipeline():
 
     save_run(date_str, len(all_editais), novos, str(html_path))
 
-    # 4. Resumo no terminal
+    # 4. Enviar por e-mail (se configurado)
+    if os.environ.get("EMAIL_USER") and os.environ.get("EMAIL_PASSWORD"):
+        print("\n📧 Enviando relatório por e-mail...")
+        try:
+            send_report(all_editais, html_path, md_path, today, novos)
+        except EnvironmentError as e:
+            print(f"   ⚠️  E-mail não enviado: {e}")
+        except Exception as e:
+            print(f"   ⚠️  Falha no envio: {e}")
+    else:
+        print("\n   ℹ️  E-mail não configurado (EMAIL_USER/EMAIL_PASSWORD ausentes no .env)")
+
+    # 5. Resumo no terminal
     alta = [e for e in all_editais if e.get("nivel") == "alta"]
     media = [e for e in all_editais if e.get("nivel") == "media"]
     baixa = [e for e in all_editais if e.get("nivel") == "baixa"]

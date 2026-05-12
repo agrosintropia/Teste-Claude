@@ -49,6 +49,37 @@ Edite `config.json`:
 "schedule_time": "08:00"
 ```
 
+## Envio por e-mail
+
+O relatório HTML é enviado automaticamente se as variáveis `EMAIL_USER` e `EMAIL_PASSWORD` estiverem no `.env`.
+
+### Gmail (recomendado)
+1. Ative a verificação em dois passos na conta Google
+2. Gere uma **Senha de App**: [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+3. Use essa senha no campo `EMAIL_PASSWORD` (não a senha normal da conta)
+
+```env
+EMAIL_SMTP_HOST=smtp.gmail.com
+EMAIL_SMTP_PORT=587
+EMAIL_USER=seu@gmail.com
+EMAIL_PASSWORD=xxxx xxxx xxxx xxxx   # senha de app gerada
+EMAIL_FROM=Agrosintropia Monitor <seu@gmail.com>
+EMAIL_TO=pessoa1@email.com,pessoa2@email.com
+```
+
+### Outros provedores
+| Provedor | SMTP Host | Porta |
+|----------|-----------|-------|
+| Gmail | smtp.gmail.com | 587 |
+| Outlook/Hotmail | smtp.office365.com | 587 |
+| Yahoo | smtp.mail.yahoo.com | 587 |
+| SMTP próprio | seu.servidor.com | 587 |
+
+O e-mail inclui:
+- **Corpo HTML** com o painel completo de editais
+- **Anexo Markdown** com o relatório em texto
+- **Assunto** com resumo: `🌱 Editais Agrosintropia 12/05/2025 — 3 alta prioridade | 12 ativos`
+
 ## Relatórios
 
 Os relatórios são salvos em `reports/` com o nome `editais_YYYY-MM-DD.md` e `.html`.
