@@ -1,0 +1,2 @@
+claude-code-sdk>=0.0.14
+anthropic>=0.52.0
