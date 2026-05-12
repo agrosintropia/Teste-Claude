@@ -1,0 +1,60 @@
+{
+  "search_queries": [
+    "edital aberto reflorestamento restauração florestal 2025",
+    "chamada pública agrofloresta sistemas agroflorestais SAF 2025",
+    "edital ATER assistência técnica agricultores familiares 2025",
+    "chamada pública agricultura regenerativa agroecologia 2025",
+    "edital povos comunidades tradicionais meio ambiente 2025",
+    "FNMA edital aberto 2025",
+    "MDA chamada pública agricultura familiar extensão rural 2025",
+    "BNDES edital socioambiental reflorestamento 2025",
+    "chamada pública recuperação áreas degradadas agricultores familiares",
+    "edital quilombolas indígenas ATER agroecologia 2025"
+  ],
+  "scoring": {
+    "areas_principais": {
+      "agrofloresta": 15,
+      "sistemas agroflorestais": 15,
+      "SAF": 12,
+      "agricultura regenerativa": 15,
+      "ATER": 12,
+      "assistência técnica extensão rural": 10,
+      "reflorestamento": 10,
+      "restauração florestal": 10,
+      "agroecologia": 10,
+      "recuperação de áreas degradadas": 8
+    },
+    "publico_alvo": {
+      "agricultores familiares": 15,
+      "povos tradicionais": 15,
+      "comunidades tradicionais": 15,
+      "quilombolas": 12,
+      "indígenas": 12,
+      "pequenos produtores": 10,
+      "assentados": 8
+    },
+    "fontes_prioritarias": {
+      "fnma.gov.br": 10,
+      "mma.gov.br": 8,
+      "gov.br/mda": 8,
+      "bndes.gov.br": 7,
+      "funbio.org.br": 8,
+      "fao.org": 6,
+      "pnud.org.br": 6
+    },
+    "prazo_bonus": {
+      "mais_30_dias": 10,
+      "entre_15_30_dias": 5,
+      "menos_15_dias": -5,
+      "expirado": -100
+    }
+  },
+  "niveis": {
+    "alta": {"min": 50, "label": "Alta Prioridade", "stars": "⭐⭐⭐", "cor": "#2e7d32"},
+    "media": {"min": 25, "label": "Média Prioridade", "stars": "⭐⭐", "cor": "#f57c00"},
+    "baixa": {"min": 0, "label": "Baixa Prioridade", "stars": "⭐", "cor": "#455a64"}
+  },
+  "schedule_time": "08:00",
+  "report_dir": "reports",
+  "max_results_per_query": 8
+}

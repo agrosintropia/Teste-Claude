@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+editais.db
+reports/*.md
+reports/*.html
+scheduler.log
