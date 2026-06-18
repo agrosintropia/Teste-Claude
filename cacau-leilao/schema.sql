@@ -567,10 +567,63 @@ CREATE INDEX idx_defesa_status   ON processos_defesa(status) WHERE status IN ('a
 
 
 -- ------------------------------------
+-- MÓDULO FINANCEIRO MVP
+-- Fluxo: comprador paga PIX para conta LoteForte → split proporcional por produtor.
+-- Sem subconta por lote (fintech). Operado manualmente pelo admin via endpoints.
+-- ------------------------------------
+
+CREATE TABLE repasse_lotes (
+    id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    lote_id                 UUID NOT NULL UNIQUE REFERENCES lotes(id),
+    entrega_id              UUID NOT NULL REFERENCES entregas(id),
+    comprador_id            UUID NOT NULL REFERENCES compradores(id),
+    -- Valores brutos
+    volume_recebido_kg      NUMERIC(10,2) NOT NULL,
+    preco_final_kg          NUMERIC(10,4) NOT NULL,
+    valor_total             NUMERIC(12,2) NOT NULL,  -- volume × preço
+    -- Comissão LoteForte sobre o comprador
+    comissao_pct            NUMERIC(5,2) NOT NULL,
+    comissao_valor          NUMERIC(10,2) NOT NULL,
+    -- O que sobra para os produtores
+    valor_liquido_produtores NUMERIC(12,2) NOT NULL,
+    -- Confirmação do recebimento do comprador
+    status                  TEXT NOT NULL DEFAULT 'aguardando_pagamento'
+                            CHECK (status IN ('aguardando_pagamento', 'pago', 'distribuido', 'cancelado')),
+    pago_em                 TIMESTAMPTZ,
+    pix_id_comprador        TEXT,          -- ID da transação PIX recebida
+    observacoes             TEXT,
+    criado_em               TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE splits_produtor (
+    id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    repasse_id              UUID NOT NULL REFERENCES repasse_lotes(id),
+    produtor_id             UUID NOT NULL REFERENCES produtores(id),
+    lote_produtor_id        INTEGER NOT NULL REFERENCES lote_produtores(id),
+    -- Proporcionalidade
+    volume_kg               NUMERIC(10,2) NOT NULL,   -- volume recebido do produtor
+    percentual_lote         NUMERIC(7,4) NOT NULL,    -- volume_produtor / volume_total_lote
+    -- Valores
+    valor_bruto             NUMERIC(12,2) NOT NULL,   -- percentual × valor_liquido_produtores
+    taxa_anual_deduzida     NUMERIC(10,2) NOT NULL DEFAULT 0,  -- R$ descont. se não quitada
+    valor_liquido           NUMERIC(12,2) NOT NULL,   -- valor_bruto − taxa_anual_deduzida
+    -- PIX para o produtor
+    chave_pix               TEXT,
+    pix_status              TEXT NOT NULL DEFAULT 'pendente'
+                            CHECK (pix_status IN ('pendente', 'agendado', 'pago', 'falhou')),
+    pix_pago_em             TIMESTAMPTZ,
+    pix_id_transacao        TEXT,
+    criado_em               TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_splits_produtor_pix ON splits_produtor(produtor_id, pix_status);
+CREATE INDEX idx_splits_repasse      ON splits_produtor(repasse_id);
+
+
+-- ------------------------------------
 -- ESCROW FINANCEIRO (Conta Caução)
 -- FORA DO MVP — exige subconta por lote em parceiro fintech (Celcoin / Swap / Zoop)
 -- e habilitação regulatória como correspondente bancário ou PSP.
--- No MVP, o pagamento entre comprador e produtores ocorre fora da plataforma.
 -- Este schema é um placeholder estrutural para a fase pós-captação.
 -- ------------------------------------
 
