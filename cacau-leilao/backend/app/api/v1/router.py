@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, produtores, compradores, admin, auditorias, expectativas, lotes
+from app.api.v1.endpoints import auth, produtores, compradores, admin, auditorias, expectativas, lotes, leiloes
 
 api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(auth.router)
@@ -9,6 +9,7 @@ api_router.include_router(admin.router)
 api_router.include_router(auditorias.router)
 api_router.include_router(expectativas.router)
 api_router.include_router(lotes.router)
+api_router.include_router(leiloes.router)
 
 # Próximas fases:
-# from app.api.v1.endpoints import leiloes, entregas
+# from app.api.v1.endpoints import entregas

@@ -5,7 +5,7 @@ Cada task cria sua própria sessão de banco (sync via psycopg2).
 import asyncio
 from app.workers.celery_app import celery_app
 from app.db.session import AsyncSessionLocal
-from app.services import lote_service
+from app.services import lote_service, leilao_service
 
 
 def _run(coro):
@@ -27,11 +27,17 @@ def formar_lotes_task(self):
         raise self.retry(exc=exc, countdown=60 * 5)
 
 
-@celery_app.task(name="app.workers.tasks.encerrar_leiloes_task")
-def encerrar_leiloes_task():
-    # Implementado na Fase 5 (Motor de Leilão)
-    print("[LEILÃO] Encerramento de leilões — Fase 5")
-    return {"status": "pendente_fase5"}
+@celery_app.task(name="app.workers.tasks.encerrar_leiloes_task", bind=True, max_retries=3)
+def encerrar_leiloes_task(self):
+    async def _inner():
+        async with AsyncSessionLocal() as db:
+            return await leilao_service.encerrar_leiloes_abertos(db)
+    try:
+        result = _run(_inner())
+        print(f"[LEILÃO] {result['encerrados']} encerrado(s), {result['vendidos']} vendido(s)")
+        return result
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=60 * 2)
 
 
 @celery_app.task(name="app.workers.tasks.verificar_nfe_expiradas_task")

@@ -26,3 +26,7 @@ def create_access_token(subject: Any, role: str) -> str:
 
 def decode_token(token: str) -> dict:
     return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+
+
+# Alias used by WebSocket auth
+decode_access_token = decode_token
