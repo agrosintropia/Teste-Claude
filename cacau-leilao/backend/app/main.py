@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.router import api_router
 
 app = FastAPI(
-    title="LoteForte — Plataforma de Leilão de Cacau",
+    title="LoteForte — Valorizando o bom cacau",
+    description="Plataforma de leilão e rastreabilidade ESG do cacau brasileiro.",
     version="0.1.0",
     docs_url="/docs",
 )

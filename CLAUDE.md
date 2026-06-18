@@ -46,7 +46,7 @@ DuckDuckGo (10 queries) → Claude Haiku (extração em lotes) → SQLite → MD
 
 ---
 
-## Projeto 2: Plataforma de Leilão de Cacau (`cacau-leilao/`)
+## Projeto 2: LoteForte — Valorizando o bom cacau (`cacau-leilao/`)
 
 Novo projeto em construção. Stack planejada: **FastAPI + PostgreSQL + Redis + React/TypeScript**.
 
@@ -123,10 +123,12 @@ app/
 
 | Fase | Escopo | Status |
 |------|--------|--------|
-| 1 — Core | Auth JWT, cadastro users, modelos base | 🔄 Em andamento |
-| 2 — Produtor | Cadastro completo, expectativas de safra | ⏳ |
-| 3 — Auditoria | Checklist CSCacau offline-first, score | ⏳ |
-| 4 — Lotes | Job semanal de formação, pontos de entrega | ⏳ |
-| 5 — Leilão | WebSocket em tempo real, lances | ⏳ |
-| 6 — Entrega | Motor Fiscal (NF-e + QR Code), balança | ⏳ |
-| 7 — Financeiro | Escrow, splits PIX, taxas | ⏳ |
+| 1 — Core | Auth JWT, cadastro users, modelos base | ✅ |
+| 2 — Produtor | Cadastro completo, expectativas de safra | ✅ |
+| 3 — Auditoria | Checklist CSCacau offline-first, score | ✅ |
+| 4 — Lotes | Job semanal de formação, pontos de entrega | ✅ |
+| 5 — Leilão | WebSocket em tempo real, lances | ✅ |
+| 6 — Entrega | Motor Fiscal (NF-e + QR Code), balança | ✅ |
+| 7 — Financeiro (fora do MVP) | Escrow + splits PIX — exige subconta por lote em parceiro fintech (Celcoin/Swap/Zoop) e habilitação regulatória. **Não entra no MVP.** Schema placeholder existe em `escrow_lotes`; integração é pós-captação. | 🔒 |
+
+**Nota MVP:** O módulo financeiro (Fase 7) é intencionalmente excluído do MVP. Operacionalmente, o pagamento entre comprador e produtores acontece fora da plataforma na primeira versão — a LoteForte valida entrega e emite o relatório de rastreabilidade ESG, mas não intermedia o fluxo financeiro ainda.

@@ -568,7 +568,10 @@ CREATE INDEX idx_defesa_status   ON processos_defesa(status) WHERE status IN ('a
 
 -- ------------------------------------
 -- ESCROW FINANCEIRO (Conta Caução)
--- [Fase 5 — placeholder estrutural]
+-- FORA DO MVP — exige subconta por lote em parceiro fintech (Celcoin / Swap / Zoop)
+-- e habilitação regulatória como correspondente bancário ou PSP.
+-- No MVP, o pagamento entre comprador e produtores ocorre fora da plataforma.
+-- Este schema é um placeholder estrutural para a fase pós-captação.
 -- ------------------------------------
 
 CREATE TABLE escrow_lotes (
