@@ -74,10 +74,59 @@ users
 - **Score ponderado**: `(gestao_producao × 0.40) + (gestao_ambiental × 0.35) + (gestao_social × 0.25)`. Pesos configuráveis em `score_pesos`.
 - **Critérios de auditoria** em `cscacau_criterios` mapeiam diretamente os itens do Currículo de Sustentabilidade do Cacau (ex: `1.1.1` = CAR, `1.8.1` = agrotóxicos, `3.1.1` = trabalhista).
 
-### Fases de desenvolvimento planejadas
+### Commands (backend)
 
-1. **Core**: cadastro, autenticação, scoring, auditoria
-2. **Lotes**: formação automática, painel do produtor
-3. **Leilão**: motor de lances, WebSocket em tempo real
-4. **Entrega**: validação, rastreabilidade, exportação
-5. **Financeiro**: taxas anuais, comissões por kg
+```bash
+cd cacau-leilao
+
+# Subir PostgreSQL + Redis + API (Docker)
+docker compose up -d db redis
+docker compose up api          # com hot-reload
+
+# Sem Docker (desenvolvimento local)
+cd backend
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn app.main:app --reload  # http://localhost:8000/docs
+
+# Testes
+pytest tests/ -v
+pytest tests/test_auth.py -v   # módulo específico
+```
+
+### Estrutura do backend (`cacau-leilao/backend/`)
+
+```
+app/
+├── main.py                  # FastAPI app + CORS + routers
+├── core/
+│   ├── config.py            # Settings via pydantic-settings (.env)
+│   └── security.py          # JWT, bcrypt
+├── db/
+│   ├── session.py           # AsyncSession + get_db() dependency
+│   └── base.py              # DeclarativeBase + imports dos models (Alembic)
+├── models/                  # SQLAlchemy ORM (espelham schema.sql)
+├── schemas/                 # Pydantic request/response
+├── api/v1/
+│   ├── deps.py              # get_current_user(), require_role()
+│   ├── router.py            # agrega todos os endpoints
+│   └── endpoints/           # um arquivo por domínio
+├── services/                # lógica de negócio (score, lote, leilão)
+└── workers/                 # Celery tasks (formação de lotes, splits PIX)
+```
+
+**Padrão de autorização:** `require_role("produtor")` como dependência FastAPI nos endpoints — não repetir verificação dentro do handler.
+
+**ORM:** SQLAlchemy 2.0 async com `Mapped[]` typed columns. Nunca usar `session.execute(text(...))` para queries de negócio — usar ORM ou select() tipado.
+
+### Fases de desenvolvimento
+
+| Fase | Escopo | Status |
+|------|--------|--------|
+| 1 — Core | Auth JWT, cadastro users, modelos base | 🔄 Em andamento |
+| 2 — Produtor | Cadastro completo, expectativas de safra | ⏳ |
+| 3 — Auditoria | Checklist CSCacau offline-first, score | ⏳ |
+| 4 — Lotes | Job semanal de formação, pontos de entrega | ⏳ |
+| 5 — Leilão | WebSocket em tempo real, lances | ⏳ |
+| 6 — Entrega | Motor Fiscal (NF-e + QR Code), balança | ⏳ |
+| 7 — Financeiro | Escrow, splits PIX, taxas | ⏳ |

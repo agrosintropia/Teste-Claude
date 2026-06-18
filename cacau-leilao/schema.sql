@@ -50,6 +50,12 @@ CREATE TYPE forecast_status AS ENUM ('rascunho', 'publicado', 'alocado', 'entreg
 
 CREATE TYPE cscacau_area AS ENUM ('gestao_producao', 'gestao_ambiental', 'gestao_social');
 
+CREATE TYPE nfe_status AS ENUM ('pendente', 'upload_produtor', 'upload_comprador', 'validada', 'expirada');
+
+CREATE TYPE compliance_status AS ENUM ('ok', 'bloqueado', 'em_defesa', 'multado', 'banido');
+
+CREATE TYPE defense_status AS ENUM ('aberto', 'em_analise', 'absolvido', 'multado', 'banido');
+
 
 -- ------------------------------------
 -- USUÁRIOS (tabela base)
@@ -83,6 +89,34 @@ CREATE TABLE regioes (
 
 
 -- ------------------------------------
+-- PONTOS DE ENTREGA
+-- (cadastrados pelos compradores; definem o raio de agrupamento de lotes)
+-- ------------------------------------
+
+CREATE TABLE pontos_entrega (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    comprador_id    UUID NOT NULL REFERENCES compradores(id),
+    nome            TEXT NOT NULL,              -- ex: "Armazém Ilhéus - Galpão Norte"
+    endereco        TEXT NOT NULL,
+    municipio       TEXT NOT NULL,
+    estado          CHAR(2) NOT NULL,
+    latitude        NUMERIC(10,6) NOT NULL,
+    longitude       NUMERIC(10,6) NOT NULL,
+    raio_km         INTEGER NOT NULL DEFAULT 50, -- raio de captação de produtores
+    regiao_id       INTEGER REFERENCES regioes(id),
+    capacidade_kg   NUMERIC(12,2),              -- capacidade máxima de recebimento
+    contato_nome    TEXT,
+    contato_tel     TEXT,
+    ativo           BOOLEAN NOT NULL DEFAULT TRUE,
+    aprovado        BOOLEAN NOT NULL DEFAULT FALSE, -- aprovado pelo admin antes de captar lotes
+    criado_em       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_pontos_entrega_comprador ON pontos_entrega(comprador_id, ativo);
+CREATE INDEX idx_pontos_entrega_coords    ON pontos_entrega(latitude, longitude);
+
+
+-- ------------------------------------
 -- PRODUTORES
 -- ------------------------------------
 
@@ -107,6 +141,10 @@ CREATE TABLE produtores (
     data_proxima_auditoria DATE,
     -- Agricultura familiar
     dap_caf             TEXT,           -- número DAP/CAF para agricultura familiar
+    -- Compliance (Tribunal de Entregas)
+    compliance_status   compliance_status NOT NULL DEFAULT 'ok',
+    bloqueado_em        TIMESTAMPTZ,
+    bloqueio_motivo     TEXT,
     criado_em           TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -290,10 +328,11 @@ CREATE TABLE bonificacoes (
 CREATE TABLE lotes (
     id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     -- Identificadores
-    codigo              TEXT UNIQUE NOT NULL,           -- ex: 'BA-SUL-A-2025-W23'
+    codigo              TEXT UNIQUE NOT NULL,           -- ex: 'BA-ILH-A-2025-W23'
     semana_iso          TEXT NOT NULL,                  -- ex: '2025-W23'
-    -- Agrupamento
-    regiao_id           INTEGER NOT NULL REFERENCES regioes(id),
+    -- Agrupamento: ponto de entrega é o critério primário; região é derivada dele
+    ponto_entrega_id    UUID NOT NULL REFERENCES pontos_entrega(id),
+    regiao_id           INTEGER REFERENCES regioes(id), -- derivado do ponto de entrega
     faixa_score         score_band NOT NULL,
     -- Janela de entrega
     entrega_inicio      DATE NOT NULL,
@@ -381,22 +420,38 @@ CREATE TABLE entregas (
     id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     lote_id                 UUID NOT NULL UNIQUE REFERENCES lotes(id),
     comprador_id            UUID NOT NULL REFERENCES compradores(id),
+    ponto_entrega_id        UUID NOT NULL REFERENCES pontos_entrega(id),
     -- Datas
     data_prevista           DATE NOT NULL,
     data_recebimento        DATE,
     -- Volumes
     volume_declarado_kg     NUMERIC(10,2) NOT NULL,  -- soma das expectativas do lote
     volume_recebido_kg      NUMERIC(10,2),           -- peso na balança do comprador
-    -- Qualidade
+    -- Qualidade (preenchido pelo operador na balança)
     umidade_pct             NUMERIC(5,2),
     fermentacao_pct         NUMERIC(5,2),
-    -- Status
+    qualidade_obs           TEXT,
+    -- Motor Fiscal (SLA de 24h após leilão encerrado)
+    nfe_status              nfe_status NOT NULL DEFAULT 'pendente',
+    nfe_numero              TEXT,
+    nfe_url                 TEXT,                    -- arquivo uploaded
+    nfe_tipo                TEXT CHECK (nfe_tipo IN ('emissao_produtor', 'contra_nota_comprador')),
+    nfe_prazo               TIMESTAMPTZ,             -- prazo de 24h calculado ao encerrar leilão
+    nfe_enviada_em          TIMESTAMPTZ,
+    -- QR Code logístico (só gerado após nfe_status = 'validada')
+    qr_code_token           TEXT UNIQUE,             -- token UUID para verificação offline
+    qr_code_gerado_em       TIMESTAMPTZ,
+    qr_code_url             TEXT,                    -- link para o documento impresso
+    -- Status geral
     status                  delivery_status NOT NULL DEFAULT 'pendente',
     validado_por            UUID REFERENCES users(id),
     validado_em             TIMESTAMPTZ,
     observacoes             TEXT,
     criado_em               TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX idx_entregas_nfe_status ON entregas(nfe_status) WHERE nfe_status != 'validada';
+CREATE INDEX idx_entregas_qr         ON entregas(qr_code_token) WHERE qr_code_token IS NOT NULL;
 
 
 -- ------------------------------------
@@ -486,6 +541,88 @@ CREATE TABLE historico_status (
 
 
 -- ------------------------------------
+-- TRIBUNAL DE ENTREGAS (Processos de Defesa)
+-- ------------------------------------
+
+CREATE TABLE processos_defesa (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    produtor_id     UUID NOT NULL REFERENCES produtores(id),
+    entrega_id      UUID REFERENCES entregas(id),    -- entrega que originou o bloqueio (pode ser NULL se bloqueio manual)
+    -- Motivo do bloqueio
+    motivo_bloqueio TEXT NOT NULL,
+    -- Defesa do produtor
+    descricao       TEXT NOT NULL,                   -- relato do produtor
+    evidencias_urls TEXT[] NOT NULL DEFAULT '{}',    -- fotos, documentos, laudos
+    -- Julgamento pelo admin
+    status          defense_status NOT NULL DEFAULT 'aberto',
+    julgado_por     UUID REFERENCES users(id),
+    julgado_em      TIMESTAMPTZ,
+    decisao         TEXT,                            -- fundamentação da decisão
+    multa_valor     NUMERIC(10,2),                   -- se aplicável
+    criado_em       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_defesa_produtor ON processos_defesa(produtor_id, status);
+CREATE INDEX idx_defesa_status   ON processos_defesa(status) WHERE status IN ('aberto', 'em_analise');
+
+
+-- ------------------------------------
+-- ESCROW FINANCEIRO (Conta Caução)
+-- [Fase 5 — placeholder estrutural]
+-- ------------------------------------
+
+CREATE TABLE escrow_lotes (
+    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    lote_id             UUID NOT NULL UNIQUE REFERENCES lotes(id),
+    comprador_id        UUID NOT NULL REFERENCES compradores(id),
+    -- Valores
+    valor_total         NUMERIC(12,2) NOT NULL,      -- preco_final_kg × volume_declarado_kg
+    valor_depositado    NUMERIC(12,2),
+    valor_liberado      NUMERIC(12,2),               -- liberado ao produtor após validação
+    valor_estornado     NUMERIC(12,2),               -- estorno por diferença de peso
+    -- Prazos (SLA)
+    prazo_deposito      TIMESTAMPTZ NOT NULL,        -- leilão encerrado + 72h
+    depositado_em       TIMESTAMPTZ,
+    liberado_em         TIMESTAMPTZ,
+    -- Multa por não depósito
+    multa_aplicada      NUMERIC(10,2),
+    -- Status
+    status              TEXT NOT NULL DEFAULT 'aguardando_deposito'
+                        CHECK (status IN ('aguardando_deposito', 'depositado', 'liberado', 'estornado', 'multado')),
+    criado_em           TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+
+-- ------------------------------------
+-- SPLITS DE PAGAMENTO (repasse por produtor)
+-- ------------------------------------
+
+CREATE TABLE splits_pagamento (
+    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    escrow_id           UUID NOT NULL REFERENCES escrow_lotes(id),
+    produtor_id         UUID NOT NULL REFERENCES produtores(id),
+    lote_produtor_id    INTEGER NOT NULL REFERENCES lote_produtores(id),
+    -- Cálculo
+    volume_declarado_kg NUMERIC(10,2) NOT NULL,
+    volume_recebido_kg  NUMERIC(10,2),               -- preenchido após pesagem
+    percentual_lote     NUMERIC(7,4) NOT NULL,        -- volume_produtor / volume_lote
+    valor_bruto         NUMERIC(12,2),               -- percentual × valor_total_lote
+    taxa_plataforma     NUMERIC(10,2),               -- taxa anual já paga = 0; senão desconta aqui
+    valor_liquido       NUMERIC(12,2),               -- recebe via PIX
+    -- PIX
+    chave_pix           TEXT,
+    pix_status          TEXT NOT NULL DEFAULT 'pendente'
+                        CHECK (pix_status IN ('pendente', 'agendado', 'pago', 'falhou')),
+    pix_pago_em         TIMESTAMPTZ,
+    pix_id_transacao    TEXT,
+    criado_em           TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_splits_produtor ON splits_pagamento(produtor_id, pix_status);
+CREATE INDEX idx_splits_escrow   ON splits_pagamento(escrow_id);
+
+
+-- ------------------------------------
 -- ÍNDICES DE PERFORMANCE
 -- ------------------------------------
 
@@ -494,6 +631,7 @@ CREATE INDEX idx_produtores_status    ON produtores(audit_status);
 CREATE INDEX idx_scores_produtor      ON scores(produtor_id, ativo);
 CREATE INDEX idx_expectativas_produtor ON expectativas_producao(produtor_id, status);
 CREATE INDEX idx_expectativas_periodo ON expectativas_producao(entrega_inicio, entrega_fim);
+CREATE INDEX idx_lotes_ponto_faixa    ON lotes(ponto_entrega_id, faixa_score, status);
 CREATE INDEX idx_lotes_regiao_faixa   ON lotes(regiao_id, faixa_score, status);
 CREATE INDEX idx_lotes_semana         ON lotes(semana_iso);
 CREATE INDEX idx_leiloes_status       ON leiloes(status, fim);
