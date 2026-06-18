@@ -129,6 +129,12 @@ app/
 | 4 — Lotes | Job semanal de formação, pontos de entrega | ✅ |
 | 5 — Leilão | WebSocket em tempo real, lances | ✅ |
 | 6 — Entrega | Motor Fiscal (NF-e + QR Code), balança | ✅ |
-| 7 — Financeiro (fora do MVP) | Escrow + splits PIX — exige subconta por lote em parceiro fintech (Celcoin/Swap/Zoop) e habilitação regulatória. **Não entra no MVP.** Schema placeholder existe em `escrow_lotes`; integração é pós-captação. | 🔒 |
+| 7 — Financeiro | Split proporcional via conta única LoteForte; PIX confirmado manualmente pelo admin | ✅ |
 
-**Nota MVP:** O módulo financeiro (Fase 7) é intencionalmente excluído do MVP. Operacionalmente, o pagamento entre comprador e produtores acontece fora da plataforma na primeira versão — a LoteForte valida entrega e emite o relatório de rastreabilidade ESG, mas não intermedia o fluxo financeiro ainda.
+**Taxa anual do produtor = 1 arroba de cacau (15 kg) pelo preço médio do ano anterior no Brasil.**
+- Admin registra o preço via `POST /admin/tarifas/arroba` com fonte CEPEA/ESALQ.
+- O sistema deriva e persiste a `taxa_anual_produtor` automaticamente (vigente no ano seguinte).
+- Taxa é descontada na primeira venda do ano; nunca excede o valor bruto do produtor no lote.
+- Fácil de comunicar: *"você paga 1 arroba pelo serviço no ano."*
+
+**Escrow clássico (fora do MVP):** subconta por lote exige parceiro fintech (Celcoin/Swap/Zoop) e habilitação regulatória. Schema placeholder em `escrow_lotes`; integração é pós-captação.

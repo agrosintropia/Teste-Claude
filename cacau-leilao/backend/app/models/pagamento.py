@@ -13,8 +13,10 @@ class Tarifa(Base):
     __tablename__ = "tarifas"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    tipo: Mapped[str] = mapped_column(String, nullable=False)  # 'taxa_anual_produtor' | 'comissao_comprador_pct'
+    # 'taxa_anual_produtor' | 'preco_medio_arroba' | 'comissao_comprador_pct'
+    tipo: Mapped[str] = mapped_column(String, nullable=False)
     valor: Mapped[float] = mapped_column(Numeric(10, 4), nullable=False)
+    ano_referencia: Mapped[int | None] = mapped_column(Integer)
     descricao: Mapped[str | None] = mapped_column(Text)
     vigente_de: Mapped[datetime] = mapped_column(Date, nullable=False)
     vigente_ate: Mapped[datetime | None] = mapped_column(Date)

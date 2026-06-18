@@ -57,4 +57,24 @@ class ConfirmarPixProdutor(BaseModel):
     pix_id_transacao: str = Field(..., min_length=1)
 
 
+class PrecoArrobaInput(BaseModel):
+    preco_arroba: float = Field(..., gt=0, description="Preço médio da arroba (15 kg) em R$")
+    ano_referencia: int = Field(..., ge=2020, description="Ano do preço de referência (ex: 2024)")
+
+
+class PrecoArrobaResponse(BaseModel):
+    ano_referencia: int
+    preco_arroba: float
+    taxa_anual_ano_seguinte: float
+    equivalencia: str
+
+
+class TaxaAnualVigenteResponse(BaseModel):
+    taxa_anual_rs: float
+    equivalencia_arroba: str
+    preco_arroba_referencia: Optional[float]
+    ano_referencia_arroba: Optional[int]
+    fonte: str
+
+
 RepasseDetalheResponse.model_rebuild()

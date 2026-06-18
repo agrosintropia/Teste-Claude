@@ -479,8 +479,13 @@ CREATE TABLE rastreabilidade_lotes (
 
 CREATE TABLE tarifas (
     id                  SERIAL PRIMARY KEY,
-    tipo                TEXT NOT NULL CHECK (tipo IN ('taxa_anual_produtor', 'comissao_comprador_pct')),
-    valor               NUMERIC(10,4) NOT NULL,  -- R$ ou percentual
+    tipo                TEXT NOT NULL CHECK (tipo IN (
+                            'taxa_anual_produtor',   -- R$/ano = 1 arroba do ano anterior
+                            'preco_medio_arroba',    -- R$/arroba (15 kg) — referência para calcular a taxa anual
+                            'comissao_comprador_pct' -- % sobre valor total do lote
+                        )),
+    valor               NUMERIC(10,4) NOT NULL,
+    ano_referencia      INTEGER,        -- ano a que o preço/taxa se refere
     descricao           TEXT,
     vigente_de          DATE NOT NULL,
     vigente_ate         DATE,

@@ -7,6 +7,7 @@ from app.api.v1.deps import get_current_user, require_role
 from app.schemas.financeiro import (
     RepasseResponse, RepasseDetalheResponse, SplitResponse,
     ConfirmarPagamento, ConfirmarPixProdutor,
+    PrecoArrobaInput, PrecoArrobaResponse, TaxaAnualVigenteResponse,
 )
 from app.models.pagamento import RepasseLote, SplitProdutor
 from app.services import financeiro_service
@@ -16,6 +17,35 @@ router = APIRouter(tags=["financeiro"])
 _admin = require_role("admin")
 _comprador = require_role("atravessador", "moageira")
 _produtor_role = require_role("produtor")
+
+
+# ---------------------------------------------------------------------------
+# Taxa anual — preço médio da arroba
+# ---------------------------------------------------------------------------
+
+@router.get("/tarifas/taxa-anual", response_model=TaxaAnualVigenteResponse)
+async def taxa_anual_vigente(
+    db: AsyncSession = Depends(get_db),
+    _: dict = Depends(get_current_user),
+):
+    """Taxa anual vigente = 1 arroba de cacau pelo preço médio do ano anterior."""
+    return await financeiro_service.get_taxa_anual_vigente(db)
+
+
+@router.post("/admin/tarifas/arroba", response_model=PrecoArrobaResponse)
+async def registrar_preco_arroba(
+    body: PrecoArrobaInput,
+    db: AsyncSession = Depends(get_db),
+    _: dict = Depends(_admin),
+):
+    """
+    Admin registra o preço médio da arroba (15 kg) de cacau do ano de referência.
+    A taxa anual do ano seguinte é derivada automaticamente: 1 arroba = esse valor.
+
+    Exemplo: arroba 2024 = R$ 200,00 → taxa anual 2025 = R$ 200,00
+    Fonte recomendada: CEPEA/ESALQ (média anual cacau em amêndoa, Bahia).
+    """
+    return await financeiro_service.registrar_preco_arroba(db, body.preco_arroba, body.ano_referencia)
 
 
 # ---------------------------------------------------------------------------

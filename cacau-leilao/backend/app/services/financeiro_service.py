@@ -8,7 +8,11 @@ Fluxo:
   4. Admin executa PIX individual para cada produtor e registra com confirmar_pix_produtor().
   5. Quando todos os splits estão pagos, repasse → status "distribuido".
 
-Taxa anual: descontada na primeira venda do ano se ainda não quitada.
+Taxa anual = 1 arroba de cacau (15 kg) pelo preço médio do ano anterior no Brasil.
+  Fácil para o produtor entender: "pago 1 arroba pelo serviço no ano."
+  Admin registra o preço médio anual via POST /admin/tarifas/arroba;
+  o sistema deriva e persiste a taxa_anual_produtor automaticamente.
+
 Comissão: percentual sobre o valor total cobrado do comprador (configurável em tarifas).
 """
 import uuid
@@ -22,9 +26,68 @@ from app.models.lote import Lote, LoteProdutor
 from app.models.entrega import Entrega
 from app.models.produtor import Produtor
 
-# Defaults se não houver tarifas cadastradas no banco
+ARROBA_KG = 15.0          # 1 arroba = 15 kg (padrão brasileiro)
 _COMISSAO_PCT_DEFAULT = 2.5
-_TAXA_ANUAL_DEFAULT = 150.0
+_TAXA_ANUAL_DEFAULT = 150.0  # fallback se nenhuma arroba cadastrada
+
+
+async def registrar_preco_arroba(
+    db: AsyncSession, preco_arroba: float, ano_referencia: int
+) -> dict:
+    """
+    Admin informa o preço médio da arroba (15 kg) do cacau no ano de referência.
+    A taxa anual para o ano seguinte = 1 arroba = esse valor.
+    Desativa registros anteriores do mesmo tipo/ano antes de inserir.
+    """
+    hoje = date.today()
+
+    # Desativa tarifas anteriores do mesmo ano
+    rows = await db.scalars(
+        select(Tarifa).where(
+            Tarifa.tipo == "preco_medio_arroba",
+            Tarifa.ano_referencia == ano_referencia,
+            Tarifa.ativo == True,  # noqa: E712
+        )
+    )
+    for t in rows:
+        t.ativo = False
+
+    rows2 = await db.scalars(
+        select(Tarifa).where(
+            Tarifa.tipo == "taxa_anual_produtor",
+            Tarifa.ano_referencia == ano_referencia + 1,
+            Tarifa.ativo == True,  # noqa: E712
+        )
+    )
+    for t in rows2:
+        t.ativo = False
+
+    # Persiste o preço médio de referência
+    db.add(Tarifa(
+        tipo="preco_medio_arroba",
+        valor=preco_arroba,
+        ano_referencia=ano_referencia,
+        descricao=f"Preço médio da arroba de cacau em {ano_referencia} (CEPEA/ESALQ)",
+        vigente_de=hoje,
+    ))
+
+    # Persiste a taxa anual derivada (vigente no ano seguinte)
+    db.add(Tarifa(
+        tipo="taxa_anual_produtor",
+        valor=preco_arroba,   # 1 arroba = esse valor em R$
+        ano_referencia=ano_referencia + 1,
+        descricao=f"Taxa anual {ano_referencia + 1} = 1 arroba ({ARROBA_KG} kg) "
+                  f"@ preço médio {ano_referencia} (R$ {preco_arroba:.2f})",
+        vigente_de=date(ano_referencia + 1, 1, 1),
+    ))
+
+    await db.commit()
+    return {
+        "ano_referencia": ano_referencia,
+        "preco_arroba": preco_arroba,
+        "taxa_anual_ano_seguinte": preco_arroba,
+        "equivalencia": f"1 arroba ({ARROBA_KG} kg) @ R$ {preco_arroba / ARROBA_KG:.2f}/kg",
+    }
 
 
 async def _tarifa_vigente(db: AsyncSession, tipo: str) -> float:
@@ -39,6 +102,33 @@ async def _tarifa_vigente(db: AsyncSession, tipo: str) -> float:
     if row:
         return float(row.valor)
     return _COMISSAO_PCT_DEFAULT if tipo == "comissao_comprador_pct" else _TAXA_ANUAL_DEFAULT
+
+
+async def get_taxa_anual_vigente(db: AsyncSession) -> dict:
+    """Retorna a taxa anual vigente e sua origem (arroba de referência)."""
+    hoje = date.today()
+    taxa_row = await db.scalar(
+        select(Tarifa).where(
+            Tarifa.tipo == "taxa_anual_produtor",
+            Tarifa.ativo == True,  # noqa: E712
+            Tarifa.vigente_de <= hoje,
+        ).order_by(Tarifa.vigente_de.desc()).limit(1)
+    )
+    arroba_row = await db.scalar(
+        select(Tarifa).where(
+            Tarifa.tipo == "preco_medio_arroba",
+            Tarifa.ativo == True,  # noqa: E712
+        ).order_by(Tarifa.vigente_de.desc()).limit(1)
+    )
+
+    taxa = float(taxa_row.valor) if taxa_row else _TAXA_ANUAL_DEFAULT
+    return {
+        "taxa_anual_rs": taxa,
+        "equivalencia_arroba": f"1 arroba ({ARROBA_KG} kg)",
+        "preco_arroba_referencia": float(arroba_row.valor) if arroba_row else None,
+        "ano_referencia_arroba": arroba_row.ano_referencia if arroba_row else None,
+        "fonte": taxa_row.descricao if taxa_row else "Valor padrão (sem arroba cadastrada)",
+    }
 
 
 async def _taxa_anual_devida(db: AsyncSession, produtor: Produtor, ano: int, taxa_valor: float) -> float:

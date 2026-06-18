@@ -12,6 +12,8 @@ from app.services.financeiro_service import (
     confirmar_pagamento_comprador,
     confirmar_pix_produtor,
     _taxa_anual_devida,
+    registrar_preco_arroba,
+    ARROBA_KG,
 )
 from app.models.pagamento import RepasseLote, SplitProdutor, Pagamento, Tarifa
 from app.models.lote import Lote, LoteProdutor
@@ -289,6 +291,57 @@ async def test_confirmar_pix_produtor_unico_fecha_repasse():
     assert resultado.pix_status == "pago"
     assert resultado.pix_id_transacao == "pix-xyz-789"
     assert repasse.status == "distribuido"
+
+
+# ---------------------------------------------------------------------------
+# Regra da arroba
+# ---------------------------------------------------------------------------
+
+def test_arroba_tem_15_kg():
+    assert ARROBA_KG == 15.0
+
+
+def test_taxa_anual_igual_ao_preco_da_arroba():
+    """Taxa anual = 1 arroba. Se arroba = R$ 200, produtor paga R$ 200/ano."""
+    preco_arroba = 200.0
+    taxa_esperada = preco_arroba          # 1 × arroba
+    preco_kg = preco_arroba / ARROBA_KG  # R$ 13,33/kg
+
+    assert taxa_esperada == 200.0
+    assert round(preco_kg, 2) == pytest.approx(13.33)
+
+
+@pytest.mark.asyncio
+async def test_registrar_preco_arroba_retorna_equivalencia():
+    db = AsyncMock()
+    db.scalars = AsyncMock(return_value=MagicMock(__iter__=lambda s: iter([])))
+    db.add = MagicMock()
+    db.commit = AsyncMock()
+
+    resultado = await registrar_preco_arroba(db, preco_arroba=180.0, ano_referencia=2024)
+
+    assert resultado["ano_referencia"] == 2024
+    assert resultado["preco_arroba"] == 180.0
+    assert resultado["taxa_anual_ano_seguinte"] == 180.0
+    assert "15" in resultado["equivalencia"] and "kg" in resultado["equivalencia"]
+    # Deve ter adicionado 2 tarifas (preco_medio_arroba + taxa_anual_produtor)
+    assert db.add.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_registrar_preco_arroba_desativa_anteriores():
+    tarifa_antiga = Tarifa()
+    tarifa_antiga.id = 1
+    tarifa_antiga.tipo = "preco_medio_arroba"
+    tarifa_antiga.ativo = True
+
+    db = AsyncMock()
+    db.scalars = AsyncMock(return_value=MagicMock(__iter__=lambda s: iter([tarifa_antiga])))
+    db.add = MagicMock()
+    db.commit = AsyncMock()
+
+    await registrar_preco_arroba(db, preco_arroba=195.0, ano_referencia=2024)
+    assert tarifa_antiga.ativo == False  # noqa: E712
 
 
 @pytest.mark.asyncio
