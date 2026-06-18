@@ -1,7 +1,7 @@
 import uuid
 import json
 from datetime import timezone
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.session import get_db
@@ -11,6 +11,7 @@ from app.models.leilao import Leilao
 from app.models.comprador import Comprador
 from app.services import leilao_service
 from app.core.security import decode_access_token
+from app.main import limiter
 
 router = APIRouter(prefix="/leiloes", tags=["leiloes"])
 _admin = require_role("admin")
@@ -137,7 +138,9 @@ async def abrir_leilao(
 
 
 @router.post("/{leilao_id}/lances", status_code=201)
+@limiter.limit("30/minute")
 async def fazer_lance(
+    request: Request,
     leilao_id: uuid.UUID,
     body: LanceCreate,
     db: AsyncSession = Depends(get_db),
