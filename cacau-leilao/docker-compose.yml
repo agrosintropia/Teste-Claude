@@ -10,6 +10,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./seed_criterios.sql:/docker-entrypoint-initdb.d/02_seed_criterios.sql
 
   redis:
     image: redis:7-alpine
