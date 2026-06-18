@@ -1,4 +1,5 @@
 services:
+
   db:
     image: postgres:16-alpine
     environment:
@@ -11,11 +12,22 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
       - ./seed_criterios.sql:/docker-entrypoint-initdb.d/02_seed_criterios.sql
+      - ./seed_demo.sql:/docker-entrypoint-initdb.d/03_seed_demo.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loteforte"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   api:
     build: ./backend
@@ -24,32 +36,59 @@ services:
       - ./backend:/app
     ports:
       - "8000:8000"
-    env_file:
-      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://loteforte:loteforte@db:5432/loteforte
+      DATABASE_URL_SYNC: postgresql://loteforte:loteforte@db:5432/loteforte
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: troque-em-producao-com-openssl-rand-hex-32
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/docs || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   worker:
     build: ./backend
     command: celery -A app.workers.celery_app worker --loglevel=info
     volumes:
       - ./backend:/app
-    env_file:
-      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://loteforte:loteforte@db:5432/loteforte
+      DATABASE_URL_SYNC: postgresql://loteforte:loteforte@db:5432/loteforte
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: troque-em-producao-com-openssl-rand-hex-32
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   beat:
     build: ./backend
     command: celery -A app.workers.celery_app beat --loglevel=info
     volumes:
       - ./backend:/app
-    env_file:
-      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://loteforte:loteforte@db:5432/loteforte
+      DATABASE_URL_SYNC: postgresql://loteforte:loteforte@db:5432/loteforte
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: troque-em-producao-com-openssl-rand-hex-32
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+
+  web:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      api:
+        condition: service_healthy
 
 volumes:
   pgdata:
