@@ -6,3 +6,4 @@ editais.db
 reports/*.md
 reports/*.html
 scheduler.log
+.claude/
