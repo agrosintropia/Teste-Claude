@@ -143,6 +143,10 @@ async def encerrar_leilao(db: AsyncSession, leilao_id: uuid.UUID) -> dict:
             .values(status="perdedor")
         )
         resultado = "vendido"
+
+        # Cria entrega automaticamente com prazo de NF-e de 24h
+        from app.services.entrega_service import criar_entrega_pos_leilao
+        await criar_entrega_pos_leilao(db, lote.id, lance_vencedor.comprador_id, agora)
     else:
         lote.status = "aberto"  # volta para aberto para novo ciclo
         resultado = "sem_lances"

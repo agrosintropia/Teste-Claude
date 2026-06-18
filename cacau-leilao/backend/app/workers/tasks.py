@@ -5,7 +5,7 @@ Cada task cria sua própria sessão de banco (sync via psycopg2).
 import asyncio
 from app.workers.celery_app import celery_app
 from app.db.session import AsyncSessionLocal
-from app.services import lote_service, leilao_service
+from app.services import lote_service, leilao_service, entrega_service
 
 
 def _run(coro):
@@ -40,8 +40,15 @@ def encerrar_leiloes_task(self):
         raise self.retry(exc=exc, countdown=60 * 2)
 
 
-@celery_app.task(name="app.workers.tasks.verificar_nfe_expiradas_task")
-def verificar_nfe_expiradas_task():
-    # Implementado na Fase 6 (Motor Fiscal)
-    print("[NF-e] Verificação de prazos — Fase 6")
-    return {"status": "pendente_fase6"}
+@celery_app.task(name="app.workers.tasks.verificar_nfe_expiradas_task", bind=True, max_retries=3)
+def verificar_nfe_expiradas_task(self):
+    async def _inner():
+        async with AsyncSessionLocal() as db:
+            return await entrega_service.verificar_nfe_expiradas(db)
+    try:
+        result = _run(_inner())
+        print(f"[NF-e] {result['expiradas']} NF-e(s) expirada(s), "
+              f"{result['produtores_bloqueados']} produtor(es) bloqueado(s)")
+        return result
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=60 * 2)
