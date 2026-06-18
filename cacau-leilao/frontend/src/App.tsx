@@ -12,9 +12,12 @@ import { SalaLeilao } from './pages/comprador/SalaLeilao'
 import { EntregasComprador as Entregas } from './pages/comprador/Entregas'
 import { Balanca } from './pages/comprador/Balanca'
 import { AdminDashboard } from './pages/admin/Dashboard'
+import { AdminFormacaoLotes } from './pages/admin/FormacaoLotes'
 import { AdminLeiloes } from './pages/admin/Leiloes'
 import { AdminRepasses as Repasses } from './pages/admin/Repasses'
 import { AdminTarifas as Tarifas } from './pages/admin/Tarifas'
+import { AuditorDashboard } from './pages/auditor/Dashboard'
+import { Checklist } from './pages/auditor/Checklist'
 import { ReactNode } from 'react'
 
 const COMPRADOR_ROLES = ['atravessador', 'moageira']
@@ -36,6 +39,7 @@ function HomeRedirect() {
   if (!user) return <Navigate to="/login" replace />
   if (user.role === 'produtor') return <Navigate to="/produtor" replace />
   if (user.role === 'admin') return <Navigate to="/admin" replace />
+  if (user.role === 'auditor') return <Navigate to="/auditor" replace />
   return <Navigate to="/comprador/lotes" replace />
 }
 
@@ -57,9 +61,13 @@ function AppRoutes() {
       <Route path="/comprador/balanca" element={<RequireAuth role="comprador"><Balanca /></RequireAuth>} />
 
       <Route path="/admin" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
+      <Route path="/admin/lotes" element={<RequireAuth role="admin"><AdminFormacaoLotes /></RequireAuth>} />
       <Route path="/admin/leiloes" element={<RequireAuth role="admin"><AdminLeiloes /></RequireAuth>} />
       <Route path="/admin/repasses" element={<RequireAuth role="admin"><Repasses /></RequireAuth>} />
       <Route path="/admin/tarifas" element={<RequireAuth role="admin"><Tarifas /></RequireAuth>} />
+
+      <Route path="/auditor" element={<RequireAuth role="auditor"><AuditorDashboard /></RequireAuth>} />
+      <Route path="/auditor/checklist/:id" element={<RequireAuth role="auditor"><Checklist /></RequireAuth>} />
     </Routes>
   )
 }
