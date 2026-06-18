@@ -1,0 +1,22 @@
+{
+  "name": "LoteForte",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" },
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.12" }
+  },
+  "postStartCommand": "cd cacau-leilao && docker compose up --build -d && echo '✅ LoteForte rodando! Vá em PORTS e abra a porta 3000.'",
+  "forwardPorts": [3000, 8000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend (App)",
+      "onAutoForward": "openBrowser"
+    },
+    "8000": {
+      "label": "API (Swagger Docs)",
+      "onAutoForward": "notify"
+    }
+  },
+  "waitFor": "postStartCommand"
+}
