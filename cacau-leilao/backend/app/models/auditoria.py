@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, date, timezone
 from sqlalchemy import String, Date, ForeignKey, Enum as SAEnum, Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Uuid
 from app.db.base import Base
 
 AuditTypeEnum = SAEnum("inicial", "anual", "extraordinaria", name="audit_type")
@@ -16,9 +16,9 @@ ChecklistAnswerEnum = SAEnum("sim", "nao", "parcial", "na", name="checklist_answ
 class Auditoria(Base):
     __tablename__ = "auditorias"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    produtor_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("produtores.id"), nullable=False)
-    auditor_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), primary_key=True, default=uuid.uuid4)
+    produtor_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("produtores.id"), nullable=False)
+    auditor_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("users.id"), nullable=False)
     tipo: Mapped[str] = mapped_column(AuditTypeEnum, nullable=False)
     data_agendada: Mapped[date] = mapped_column(Date, nullable=False)
     data_realizada: Mapped[date | None] = mapped_column(Date)
@@ -37,7 +37,7 @@ class AuditoriaChecklist(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     auditoria_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("auditorias.id", ondelete="CASCADE"), nullable=False
+        Uuid(native_uuid=True), ForeignKey("auditorias.id", ondelete="CASCADE"), nullable=False
     )
     criterio_id: Mapped[int] = mapped_column(ForeignKey("cscacau_criterios.id"), nullable=False)
     resposta: Mapped[str] = mapped_column(ChecklistAnswerEnum, nullable=False)

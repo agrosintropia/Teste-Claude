@@ -1,8 +1,8 @@
 import uuid
 from datetime import datetime, date, timezone
-from sqlalchemy import String, Numeric, Date, Boolean, ForeignKey, DateTime, ARRAY, Text, Enum as SAEnum
+from sqlalchemy import String, Numeric, Date, Boolean, ForeignKey, DateTime, Text, Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Uuid
 from app.db.base import Base
 
 NfeStatusEnum = SAEnum("pendente", "upload_produtor", "upload_comprador", "validada", "expirada", name="nfe_status")
@@ -13,12 +13,12 @@ DefenseStatusEnum = SAEnum("aberto", "em_analise", "aprovado", "rejeitado", name
 class Entrega(Base):
     __tablename__ = "entregas"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), primary_key=True, default=uuid.uuid4)
     lote_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("lotes.id"), unique=True, nullable=False
+        Uuid(native_uuid=True), ForeignKey("lotes.id"), unique=True, nullable=False
     )
-    comprador_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("compradores.id"), nullable=False)
-    ponto_entrega_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("pontos_entrega.id"), nullable=False)
+    comprador_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("compradores.id"), nullable=False)
+    ponto_entrega_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("pontos_entrega.id"), nullable=False)
 
     data_prevista: Mapped[date] = mapped_column(Date, nullable=False)
     data_recebimento: Mapped[date | None] = mapped_column(Date)
@@ -42,7 +42,7 @@ class Entrega(Base):
     qr_code_url: Mapped[str | None] = mapped_column(String)
 
     status: Mapped[str] = mapped_column(DeliveryStatusEnum, default="pendente", nullable=False)
-    validado_por: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    validado_por: Mapped[uuid.UUID | None] = mapped_column(Uuid(native_uuid=True), ForeignKey("users.id"))
     validado_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     observacoes: Mapped[str | None] = mapped_column(Text)
 
@@ -56,16 +56,16 @@ class Entrega(Base):
 class ProcessoDefesa(Base):
     __tablename__ = "processos_defesa"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    produtor_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("produtores.id"), nullable=False)
-    entrega_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("entregas.id"))
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), primary_key=True, default=uuid.uuid4)
+    produtor_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("produtores.id"), nullable=False)
+    entrega_id: Mapped[uuid.UUID | None] = mapped_column(Uuid(native_uuid=True), ForeignKey("entregas.id"))
 
     motivo_bloqueio: Mapped[str] = mapped_column(Text, nullable=False)
     descricao: Mapped[str] = mapped_column(Text, nullable=False)
-    evidencias_urls: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list, nullable=False)
+    evidencias_urls: Mapped[str] = mapped_column(Text, default="[]", nullable=False)  # JSON array as text
 
     status: Mapped[str] = mapped_column(DefenseStatusEnum, default="aberto", nullable=False)
-    julgado_por: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    julgado_por: Mapped[uuid.UUID | None] = mapped_column(Uuid(native_uuid=True), ForeignKey("users.id"))
     julgado_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     decisao: Mapped[str | None] = mapped_column(Text)
     multa_valor: Mapped[float | None] = mapped_column(Numeric(10, 2))

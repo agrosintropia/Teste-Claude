@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 from sqlalchemy import String, Boolean, Numeric, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Uuid
 from app.db.base import Base
 
 AuditStatus = SAEnum(
@@ -18,9 +18,9 @@ ComplianceStatus = SAEnum(
 class Produtor(Base):
     __tablename__ = "produtores"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False
+        Uuid(native_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False
     )
     cpf: Mapped[str] = mapped_column(String, unique=True, nullable=False)
 

@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy import String, Boolean, Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Uuid
 from datetime import datetime, timezone
 from app.db.base import Base
 
@@ -14,7 +14,7 @@ UserRole = SAEnum(
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
     role: Mapped[str] = mapped_column(UserRole, nullable=False)

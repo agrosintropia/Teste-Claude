@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 from sqlalchemy import String, Numeric, Date, Integer, ForeignKey, Boolean, DateTime, Enum as SAEnum, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Uuid
 from app.db.base import Base
 
 PaymentTypeEnum = SAEnum("taxa_anual_produtor", "deducao_primeira_venda", "comissao_comprador", name="payment_type")
@@ -26,8 +26,8 @@ class Tarifa(Base):
 class Pagamento(Base):
     __tablename__ = "pagamentos"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("users.id"), nullable=False)
     tipo: Mapped[str] = mapped_column(PaymentTypeEnum, nullable=False)
     valor: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     status: Mapped[str] = mapped_column(PaymentStatusEnum, default="pendente", nullable=False)
@@ -41,10 +41,10 @@ class Pagamento(Base):
 class RepasseLote(Base):
     __tablename__ = "repasse_lotes"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    lote_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("lotes.id"), unique=True, nullable=False)
-    entrega_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("entregas.id"), nullable=False)
-    comprador_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("compradores.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), primary_key=True, default=uuid.uuid4)
+    lote_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("lotes.id"), unique=True, nullable=False)
+    entrega_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("entregas.id"), nullable=False)
+    comprador_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("compradores.id"), nullable=False)
 
     volume_recebido_kg: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     preco_final_kg: Mapped[float] = mapped_column(Numeric(10, 4), nullable=False)
@@ -68,9 +68,9 @@ class RepasseLote(Base):
 class SplitProdutor(Base):
     __tablename__ = "splits_produtor"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    repasse_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("repasse_lotes.id"), nullable=False)
-    produtor_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("produtores.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), primary_key=True, default=uuid.uuid4)
+    repasse_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("repasse_lotes.id"), nullable=False)
+    produtor_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("produtores.id"), nullable=False)
     lote_produtor_id: Mapped[int] = mapped_column(Integer, ForeignKey("lote_produtores.id"), nullable=False)
 
     volume_kg: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)

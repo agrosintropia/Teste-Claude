@@ -2,16 +2,16 @@ import uuid
 from datetime import datetime, timezone
 from sqlalchemy import String, Boolean, Integer, Numeric, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Uuid
 from app.db.base import Base
 
 
 class PontoEntrega(Base):
     __tablename__ = "pontos_entrega"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), primary_key=True, default=uuid.uuid4)
     comprador_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("compradores.id"), nullable=False
+        Uuid(native_uuid=True), ForeignKey("compradores.id"), nullable=False
     )
     nome: Mapped[str] = mapped_column(String, nullable=False)
     endereco: Mapped[str] = mapped_column(String, nullable=False)

@@ -16,6 +16,9 @@ SECRET_KEY=loteforte-dev-secret-key-2024
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 EOF
 
+echo "🗄️  Inicializando banco de dados SQLite..."
+python init_db.py
+
 # ── Frontend ─────────────────────────────────────────────────
 cd /workspaces/Teste-Claude/cacau-leilao/frontend
 npm install --silent

@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, date, timezone
 from sqlalchemy import Integer, Boolean, Date, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Uuid
 from app.db.base import Base
 
 ScoreBandEnum = SAEnum("A", "B", "C", "D", name="score_band")
@@ -12,8 +12,8 @@ class Score(Base):
     __tablename__ = "scores"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    produtor_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("produtores.id"), nullable=False)
-    auditoria_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("auditorias.id"))
+    produtor_id: Mapped[uuid.UUID] = mapped_column(Uuid(native_uuid=True), ForeignKey("produtores.id"), nullable=False)
+    auditoria_id: Mapped[uuid.UUID | None] = mapped_column(Uuid(native_uuid=True), ForeignKey("auditorias.id"))
 
     score_gestao_producao: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     score_gestao_ambiental: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
