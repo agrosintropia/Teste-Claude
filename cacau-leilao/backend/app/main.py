@@ -4,13 +4,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from app.core.limiter import limiter
 from app.api.v1.router import api_router
 from app.db.seed import init_database
-
-limiter = Limiter(key_func=get_remote_address)
 
 # Caminho para o frontend compilado (npm run build → frontend/dist)
 FRONTEND_DIST = os.path.normpath(

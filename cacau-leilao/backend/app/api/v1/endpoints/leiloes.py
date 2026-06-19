@@ -11,7 +11,7 @@ from app.models.leilao import Leilao
 from app.models.comprador import Comprador
 from app.services import leilao_service
 from app.core.security import decode_access_token
-from app.main import limiter
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/leiloes", tags=["leiloes"])
 _admin = require_role("admin")
