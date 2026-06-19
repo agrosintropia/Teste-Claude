@@ -10,6 +10,7 @@ email-validator==2.2.0     # requerido pelo EmailStr do Pydantic
 pydantic-settings==2.5.2
 python-jose[cryptography]==3.3.0   # JWT
 passlib[bcrypt]==1.7.4
+bcrypt==4.0.1              # passlib 1.7.4 não é compatível com bcrypt 4.1+ (AttributeError __about__)
 python-multipart==0.0.12   # upload de arquivos (NF-e, fotos auditoria)
 httpx==0.27.2              # cliente HTTP async (para PIX, webhooks)
 celery==5.4.0              # workers: job de lotes, splits, expiração NF-e
