@@ -1,29 +1,35 @@
 #!/bin/bash
-# Inicia backend e frontend juntos
+# LoteForte — inicia tudo em UMA porta só (8000), sem proxy, sem dois terminais.
 # Uso: bash .devcontainer/start.sh
+set -e
 
-echo "🟢 Iniciando Backend (porta 8000)..."
-cd /workspaces/Teste-Claude/cacau-leilao/backend
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload &
-BACKEND_PID=$!
+ROOT=/workspaces/Teste-Claude/cacau-leilao
 
-sleep 3
+# ── Backend: dependências + .env ─────────────────────────────
+echo "📦 Instalando dependências do backend..."
+cd "$ROOT/backend"
+pip install -r requirements.txt --quiet
 
-echo "🟢 Iniciando Frontend (porta 3000)..."
-cd /workspaces/Teste-Claude/cacau-leilao/frontend
-npm run dev -- --host 0.0.0.0 --port 3000 &
-FRONTEND_PID=$!
+cat > .env << 'EOF'
+DATABASE_URL=sqlite+aiosqlite:///./loteforte.db
+DATABASE_URL_SYNC=sqlite:///./loteforte.db
+REDIS_URL=redis://localhost:6379/0
+SECRET_KEY=loteforte-dev-secret-key-2024
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+EOF
 
+# ── Frontend: compila para arquivos estáticos ────────────────
+echo "🛠️  Compilando o frontend (pode levar 1-2 min)..."
+cd "$ROOT/frontend"
+npm install --silent
+npm run build
+
+# ── Sobe UM servidor que serve API + frontend juntos ─────────
 echo ""
-echo "✅ App rodando!"
-echo "   Frontend → porta 3000 (clique em PORTAS no VS Code)"
-echo "   API Docs → porta 8000/docs"
+echo "✅ Pronto! Abra a porta 8000 na aba PORTAS do VS Code."
 echo ""
 echo "Logins demo (senha: demo1234):"
-echo "  admin@loteforte.com"
-echo "  joao@produtor.com"
-echo "  compras@chocobras.com"
+echo "  admin@loteforte.com  ·  joao@produtor.com  ·  compras@chocobras.com"
 echo ""
-echo "Pressione Ctrl+C para parar tudo."
-
-wait $BACKEND_PID $FRONTEND_PID
+cd "$ROOT/backend"
+uvicorn app.main:app --host 0.0.0.0 --port 8000

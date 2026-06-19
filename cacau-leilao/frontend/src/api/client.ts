@@ -38,5 +38,6 @@ export const api = {
 
 export function wsUrl(path: string): string {
   const token = getToken()
-  return `ws://localhost:8000/api/v1${path}${token ? `?token=${token}` : ''}`
+  const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
+  return `${proto}://${window.location.host}/api/v1${path}${token ? `?token=${token}` : ''}`
 }
