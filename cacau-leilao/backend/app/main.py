@@ -2,8 +2,7 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from app.core.limiter import limiter
@@ -51,19 +50,26 @@ async def health():
 
 
 # ── Servir o frontend compilado na mesma porta (sem proxy) ──────────────
-# As rotas de API acima têm precedência; o que sobra cai no SPA.
-if os.path.isdir(FRONTEND_DIST):
-    assets_dir = os.path.join(FRONTEND_DIST, "assets")
-    if os.path.isdir(assets_dir):
-        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
-
+# Tudo verificado em TEMPO DE REQUISIÇÃO (não no import), então funciona
+# mesmo que o build do frontend só termine depois do servidor subir.
+# As rotas de API acima têm precedência; o resto cai aqui.
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
     index_file = os.path.join(FRONTEND_DIST, "index.html")
 
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        # Arquivos estáticos na raiz do dist (favicon, etc.)
-        candidate = os.path.join(FRONTEND_DIST, full_path)
-        if full_path and os.path.isfile(candidate):
-            return FileResponse(candidate)
-        # Qualquer outra rota → index.html (React Router resolve no cliente)
+    # Arquivo estático real dentro do dist (assets/*.js, *.css, favicon…)
+    candidate = os.path.normpath(os.path.join(FRONTEND_DIST, full_path))
+    if full_path and candidate.startswith(FRONTEND_DIST) and os.path.isfile(candidate):
+        return FileResponse(candidate)
+
+    # Qualquer rota da SPA → index.html (React Router resolve no cliente)
+    if os.path.isfile(index_file):
         return FileResponse(index_file)
+
+    # Frontend ainda não compilado
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "Frontend ainda não foi compilado. Rode: cd cacau-leilao/frontend && npm run build"
+        },
+    )
