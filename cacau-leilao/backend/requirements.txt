@@ -6,6 +6,7 @@ asyncpg==0.29.0            # driver async para PostgreSQL
 psycopg2-binary==2.9.9     # para Alembic (sync)
 redis==5.0.8
 pydantic==2.9.2
+email-validator==2.2.0     # requerido pelo EmailStr do Pydantic
 pydantic-settings==2.5.2
 python-jose[cryptography]==3.3.0   # JWT
 passlib[bcrypt]==1.7.4
