@@ -8,7 +8,7 @@ ROOT=/workspaces/Teste-Claude/cacau-leilao
 # ── Backend: dependências + .env ─────────────────────────────
 echo "📦 Instalando dependências do backend..."
 cd "$ROOT/backend"
-pip install -r requirements.txt --quiet
+pip install -r requirements.txt
 
 cat > .env << 'EOF'
 DATABASE_URL=sqlite+aiosqlite:///./loteforte.db
