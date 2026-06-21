@@ -25,7 +25,8 @@ export function Login() {
     try {
       await login(email, senha)
     } catch (err: unknown) {
-      setErro(err instanceof Error ? err.message : 'Erro ao entrar')
+      const msg = err instanceof Error ? err.message : String(err)
+      setErro(msg || 'Erro desconhecido ao entrar')
     } finally {
       setLoading(false)
     }

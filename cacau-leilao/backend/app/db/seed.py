@@ -40,4 +40,8 @@ async def init_database() -> None:
                     nome_completo=u["nome_completo"],
                     ativo=True,
                 ))
+            else:
+                # Garante que usuários demo sempre ficam ativos (corrige banco antigo)
+                existing.ativo = True
+                existing.password_hash = hashed
         await session.commit()
