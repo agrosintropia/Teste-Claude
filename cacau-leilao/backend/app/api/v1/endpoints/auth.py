@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse
+from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse, UserInfo
 from app.core.security import hash_password, verify_password, create_access_token
 from app.core.limiter import limiter
 
@@ -44,4 +44,5 @@ async def login(request: Request, body: LoginRequest, db: AsyncSession = Depends
         access_token=create_access_token(user.id, user.role),
         role=user.role,
         user_id=str(user.id),
+        user=UserInfo(id=str(user.id), nome=user.nome_completo, email=user.email, role=user.role),
     )

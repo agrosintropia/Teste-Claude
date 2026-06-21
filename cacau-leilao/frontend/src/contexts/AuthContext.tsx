@@ -2,6 +2,9 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { api } from '../api/client'
 import { User, AuthResponse } from '../api/types'
 
+const TOKEN_KEY = 'loteforte_token'
+const USER_KEY = 'loteforte_user'
+
 interface AuthContextType {
   user: User | null
   token: string | null
@@ -19,34 +22,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token')
-    const storedUser = localStorage.getItem('user')
-    if (storedToken && storedUser) {
-      setToken(storedToken)
-      setUser(JSON.parse(storedUser))
+    try {
+      const storedToken = localStorage.getItem(TOKEN_KEY)
+      const storedUser = localStorage.getItem(USER_KEY)
+      if (storedToken && storedUser) {
+        setToken(storedToken)
+        setUser(JSON.parse(storedUser))
+      }
+    } catch {
+      // localStorage corrompido — limpa e começa do zero
+      localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem(USER_KEY)
     }
     setIsLoading(false)
   }, [])
 
   async function login(email: string, password: string) {
     const res = await api.post<AuthResponse>('/auth/login', { email, password })
-    localStorage.setItem('token', res.access_token)
-    localStorage.setItem('user', JSON.stringify(res.user))
+    localStorage.setItem(TOKEN_KEY, res.access_token)
+    localStorage.setItem(USER_KEY, JSON.stringify(res.user))
     setToken(res.access_token)
     setUser(res.user)
   }
 
   async function register(nome: string, email: string, password: string, role: string) {
-    const res = await api.post<AuthResponse>('/auth/register', { nome, email, password, role })
-    localStorage.setItem('token', res.access_token)
-    localStorage.setItem('user', JSON.stringify(res.user))
+    const res = await api.post<AuthResponse>('/auth/register', { nome_completo: nome, email, password, role })
+    localStorage.setItem(TOKEN_KEY, res.access_token)
+    localStorage.setItem(USER_KEY, JSON.stringify(res.user))
     setToken(res.access_token)
     setUser(res.user)
   }
 
   function logout() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(USER_KEY)
     setToken(null)
     setUser(null)
   }
