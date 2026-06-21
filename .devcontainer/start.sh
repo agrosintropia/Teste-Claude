@@ -24,6 +24,11 @@ cd "$ROOT/frontend"
 npm install --silent
 npm run build
 
+# ── Mata qualquer processo que já esteja usando a porta 8000 ─
+echo "🔄 Liberando porta 8000..."
+fuser -k 8000/tcp 2>/dev/null || true
+sleep 1
+
 # ── Sobe UM servidor que serve API + frontend juntos ─────────
 echo ""
 echo "✅ Pronto! Abra a porta 8000 na aba PORTAS do VS Code."
