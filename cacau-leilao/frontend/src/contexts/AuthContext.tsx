@@ -39,6 +39,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string) {
     const res = await api.post<AuthResponse>('/auth/login', { email, password })
+    console.log('[AuthContext] resposta do login:', JSON.stringify(res))
+    if (!res.user) throw new Error('Resposta inválida do servidor (sem user)')
     localStorage.setItem(TOKEN_KEY, res.access_token)
     localStorage.setItem(USER_KEY, JSON.stringify(res.user))
     setToken(res.access_token)
