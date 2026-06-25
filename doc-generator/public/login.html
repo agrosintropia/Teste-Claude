@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agrosintropia — Acesso</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-box {
+      background: #fff; border: 1px solid var(--gray-200);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 40px 36px; width: 100%; max-width: 380px; text-align: center;
+    }
+    .login-logo  { font-size: 2.5rem; margin-bottom: 8px; }
+    .login-title { font-size: 1.4rem; font-weight: 700; color: var(--green-dark); margin-bottom: 4px; }
+    .login-sub   { font-size: 0.85rem; color: var(--gray-600); margin-bottom: 28px; }
+    .login-box label { text-align: left; }
+    .login-error {
+      background: #FEF2F2; border: 1px solid #FECACA;
+      color: #DC2626; border-radius: var(--radius);
+      padding: 10px 14px; font-size: 0.88rem; margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="login-logo">🌿</div>
+    <div class="login-title">Agrosintropia</div>
+    <div class="login-sub">Sistema interno — acesso restrito</div>
+    <div id="login-error" class="login-error" style="display:none">Senha incorreta. Tente novamente.</div>
+    <form method="POST" action="/login">
+      <div class="field" style="text-align:left; margin-bottom:4px;">
+        <label for="password">Senha de acesso</label>
+        <input type="password" id="password" name="password" required autofocus placeholder="••••••••" />
+      </div>
+      <button type="submit" class="btn-submit" style="margin-top:8px;">Entrar</button>
+    </form>
+  </div>
+  <script>
+    if (new URLSearchParams(location.search).get('erro'))
+      document.getElementById('login-error').style.display = 'block';
+  </script>
+</body>
+</html>

@@ -14,6 +14,9 @@
     <h1>Agrosintropia</h1>
     <p>Gerador de Laudos de Recomendação de Adubação Orgânica em SAFs</p>
   </div>
+  <nav class="header-nav">
+    <a href="/historico" class="nav-link">📋 Histórico</a>
+  </nav>
 </header>
 
 <main>
@@ -220,11 +223,26 @@
       </div>
     </div>
 
+    <!-- 6. Observações do Agrônomo -->
+    <div class="card">
+      <div class="card-title"><span class="card-num">6</span>Observações do Agrônomo</div>
+      <div class="field">
+        <label for="observacoes">Observações e considerações adicionais <em class="hint" style="display:inline">(opcional)</em></label>
+        <textarea id="observacoes" name="observacoes" rows="5" placeholder="Histórico da área, observações de campo, restrições locais, disponibilidade de insumos, outras orientações ao produtor..."></textarea>
+      </div>
+    </div>
+
     <!-- Submit -->
-    <button type="submit" class="btn-submit" id="btn-gerar">
-      <div class="spinner" id="spinner"></div>
-      <span class="btn-text" id="btn-text">🌱 Gerar Laudo de Recomendação</span>
-    </button>
+    <div class="btn-group">
+      <button type="submit" class="btn-submit" id="btn-gerar">
+        <div class="spinner" id="spinner"></div>
+        <span class="btn-text" id="btn-text">🌱 Gerar Laudo (.docx)</span>
+      </button>
+      <button type="button" class="btn-submit btn-pdf" id="btn-pdf">
+        <div class="spinner" id="spinner-pdf"></div>
+        <span class="btn-text" id="btn-pdf-text">📄 Gerar Laudo (.pdf)</span>
+      </button>
+    </div>
     <div id="error-msg"></div>
 
   </form>

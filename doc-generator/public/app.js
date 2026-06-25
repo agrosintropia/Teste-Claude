@@ -115,12 +115,7 @@ function hideExtractFeedback() {
 
 // ── Geração do laudo ──────────────────────────────────────────────────────────
 
-document.getElementById('form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const btn      = document.getElementById('btn-gerar');
-  const spinner  = document.getElementById('spinner');
-  const btnText  = document.getElementById('btn-text');
+async function submitForm(endpoint, format, btn, spinner, btnTextEl, defaultLabel, ext) {
   const errorDiv = document.getElementById('error-msg');
 
   // Reset error
@@ -131,13 +126,13 @@ document.getElementById('form').addEventListener('submit', async (e) => {
   btn.disabled = true;
   btn.classList.add('loading');
   spinner.style.display = 'block';
-  btnText.textContent   = 'Gerando laudo...';
+  btnTextEl.textContent = 'Gerando laudo...';
 
   try {
     const data = collectFormData();
     validateData(data);
 
-    const response = await fetch('/api/generate', {
+    const response = await fetch(endpoint, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(data),
@@ -152,7 +147,7 @@ document.getElementById('form').addEventListener('submit', async (e) => {
     const blob     = await response.blob();
     const url      = URL.createObjectURL(blob);
     const a        = document.createElement('a');
-    const filename = getFilenameFromResponse(response) || `laudo_${Date.now()}.docx`;
+    const filename = getFilenameFromResponse(response) || `laudo_${Date.now()}.${ext}`;
     a.href         = url;
     a.download     = filename;
     document.body.appendChild(a);
@@ -168,8 +163,31 @@ document.getElementById('form').addEventListener('submit', async (e) => {
     btn.disabled = false;
     btn.classList.remove('loading');
     spinner.style.display = 'none';
-    btnText.textContent   = '🌱 Gerar Laudo de Recomendação';
+    btnTextEl.textContent = defaultLabel;
   }
+}
+
+document.getElementById('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  await submitForm(
+    '/api/generate', 'docx',
+    document.getElementById('btn-gerar'),
+    document.getElementById('spinner'),
+    document.getElementById('btn-text'),
+    '🌱 Gerar Laudo (.docx)',
+    'docx'
+  );
+});
+
+document.getElementById('btn-pdf').addEventListener('click', async () => {
+  await submitForm(
+    '/api/generate-pdf', 'pdf',
+    document.getElementById('btn-pdf'),
+    document.getElementById('spinner-pdf'),
+    document.getElementById('btn-pdf-text'),
+    '📄 Gerar Laudo (.pdf)',
+    'pdf'
+  );
 });
 
 function getFilenameFromResponse(response) {
@@ -248,6 +266,7 @@ function collectFormData() {
     area:        getNum('area'),
     culturas,
     cobertura:   getVal('cobertura') || 'moderada',
+    observacoes: getVal('observacoes'),
     saf,
     solo,
     calcario,

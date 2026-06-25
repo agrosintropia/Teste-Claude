@@ -393,6 +393,18 @@ function sectionProximosPassos(result) {
   ];
 }
 
+// ── Agronomist observations section ──────────────────────────────────────────
+
+function sectionObservacoes(data) {
+  if (!data.observacoes) return [];
+
+  return [
+    h1('OBSERVAÇÕES DO AGRÔNOMO'),
+    p(data.observacoes),
+    spacer(),
+  ];
+}
+
 // ── Signature field ───────────────────────────────────────────────────────────
 
 function sectionAssinatura() {
@@ -484,6 +496,7 @@ function buildLaudo(result, data) {
         ...sectionAdubacaoVerde(result),
         ...sectionSAF(result),
         ...sectionProximosPassos(result),
+        ...sectionObservacoes(data),
         ...sectionAssinatura(),
       ],
     }],
