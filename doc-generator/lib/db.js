@@ -10,23 +10,27 @@ const db = new DatabaseSync(path.join(dataDir, 'laudos.db'));
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS laudos (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    created_at  TEXT NOT NULL DEFAULT (datetime('now','localtime')),
-    cliente     TEXT,
-    propriedade TEXT,
-    municipio   TEXT,
-    talhao      TEXT,
-    culturas    TEXT,
-    observacoes TEXT,
-    solo_json   TEXT,
-    resultado_json TEXT
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at     TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    cliente        TEXT,
+    propriedade    TEXT,
+    municipio      TEXT,
+    talhao         TEXT,
+    culturas       TEXT,
+    observacoes    TEXT,
+    solo_json      TEXT,
+    resultado_json TEXT,
+    agronomo_json  TEXT
   )
 `);
 
+// Migration: add agronomo_json if DB was created before this column existed
+try { db.exec(`ALTER TABLE laudos ADD COLUMN agronomo_json TEXT`); } catch (_) { /* column already exists */ }
+
 function salvarLaudo(data, resultado) {
   const stmt = db.prepare(`
-    INSERT INTO laudos (cliente, propriedade, municipio, talhao, culturas, observacoes, solo_json, resultado_json)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO laudos (cliente, propriedade, municipio, talhao, culturas, observacoes, solo_json, resultado_json, agronomo_json)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const info = stmt.run(
     data.cliente || null,
@@ -36,7 +40,8 @@ function salvarLaudo(data, resultado) {
     JSON.stringify(data.culturas || []),
     data.observacoes || null,
     JSON.stringify(data.solo || {}),
-    JSON.stringify(resultado || {})
+    JSON.stringify(resultado || {}),
+    data.agronomo ? JSON.stringify(data.agronomo) : null
   );
   return info.lastInsertRowid;
 }

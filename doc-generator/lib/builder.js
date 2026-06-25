@@ -65,6 +65,7 @@ function sectionCapa(result, data) {
         makeInfoRow('Área', areaStr),
         makeInfoRow('Culturas', cultStr),
         makeInfoRow('Data de Emissão', dataGer),
+        ...(data.agronomo?.nome ? [makeInfoRow('Responsável Técnico', `${data.agronomo.nome}${data.agronomo.crea ? ` — CREA ${data.agronomo.crea}` : ''}`)] : []),
       ],
     }),
     spacer(), spacer(),
@@ -407,26 +408,31 @@ function sectionObservacoes(data) {
 
 // ── Signature field ───────────────────────────────────────────────────────────
 
-function sectionAssinatura() {
-  const linhaVazia = '_______________________________________________';
+function sectionAssinatura(data) {
+  const agr  = data?.agronomo || {};
+  const nome = agr.nome || '_______________________________________________';
+  const crea = agr.crea ? `CREA nº: ${agr.crea}` : 'CREA nº: _____________________';
+  const data_ = new Date().toLocaleDateString('pt-BR');
+  const dataStr = agr.nome ? `Data: ${data_}` : 'Data: _____/_____/________';
+  const hasName = !!agr.nome;
 
   return [
     divider(),
     h2('RESPONSÁVEL TÉCNICO'),
     spacer(),
     new Paragraph({
-      spacing: { before: 600, after: 60 },
-      children: [run(linhaVazia, { color: THEME.color.gray })],
+      spacing: { before: hasName ? 120 : 600, after: 60 },
+      children: [run(nome, { bold: hasName, size: hasName ? THEME.size.body : THEME.size.body, color: hasName ? THEME.color.dark : THEME.color.gray })],
     }),
-    p('Nome do Agrônomo Responsável', { italics: true, color: THEME.color.gray }),
+    ...(hasName ? [] : [p('Nome do Agrônomo Responsável', { italics: true, color: THEME.color.gray })]),
     spacer(),
     new Paragraph({
-      spacing: { before: 200, after: 60 },
-      children: [run('CREA nº: _____________________', { color: THEME.color.gray })],
+      spacing: { before: 80, after: 60 },
+      children: [run(crea, { color: hasName ? THEME.color.dark : THEME.color.gray })],
     }),
     new Paragraph({
       spacing: { before: 80, after: 60 },
-      children: [run(`Data: _____/_____/________`, { color: THEME.color.gray })],
+      children: [run(dataStr, { color: hasName ? THEME.color.dark : THEME.color.gray })],
     }),
     spacer(),
     divider(),
@@ -497,7 +503,7 @@ function buildLaudo(result, data) {
         ...sectionSAF(result),
         ...sectionProximosPassos(result),
         ...sectionObservacoes(data),
-        ...sectionAssinatura(),
+        ...sectionAssinatura(data),
       ],
     }],
   });

@@ -183,6 +183,7 @@ function buildDataFromLaudo(laudo) {
     observacoes: laudo.observacoes,
     culturas:    JSON.parse(laudo.culturas || '[]'),
     solo:        JSON.parse(laudo.solo_json || '{}'),
+    agronomo:    laudo.agronomo_json ? JSON.parse(laudo.agronomo_json) : undefined,
   };
 }
 

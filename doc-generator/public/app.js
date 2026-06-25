@@ -267,6 +267,10 @@ function collectFormData() {
     culturas,
     cobertura:   getVal('cobertura') || 'moderada',
     observacoes: getVal('observacoes'),
+    agronomo: {
+      nome: getVal('agronomo_nome'),
+      crea: getVal('agronomo_crea'),
+    },
     saf,
     solo,
     calcario,
