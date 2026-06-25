@@ -17,6 +17,32 @@
 </header>
 
 <main>
+  <!-- Upload de Laudo (fora do form principal) -->
+  <div class="card card-upload" id="card-upload">
+    <div class="card-title"><span class="card-num">✦</span>Importar Laudo do Laboratório</div>
+    <p class="upload-desc">Envie o PDF ou foto do laudo de análise de solo. O sistema extrai os valores automaticamente via IA e preenche os campos abaixo.</p>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="upload-input" accept=".pdf,.jpg,.jpeg,.png,.webp" style="display:none" />
+      <div class="drop-icon">📄</div>
+      <div class="drop-text">Arraste o arquivo aqui ou <button type="button" class="link-btn" id="btn-browse">clique para selecionar</button></div>
+      <div class="drop-hint">PDF, JPG, PNG ou WEBP — máx. 15 MB</div>
+    </div>
+
+    <div id="upload-status" style="display:none"></div>
+
+    <button type="button" class="btn-extract" id="btn-extract" style="display:none">
+      <div class="spinner" id="spinner-extract"></div>
+      <span id="btn-extract-text">⚡ Extrair Dados com IA</span>
+    </button>
+
+    <div id="extract-result" style="display:none">
+      <div class="extract-ok">✅ Dados extraídos! Verifique os campos preenchidos abaixo e ajuste se necessário.</div>
+      <div id="extract-notes" class="extract-notes"></div>
+    </div>
+    <div id="extract-error" style="display:none" class="extract-error"></div>
+  </div>
+
   <form id="form" novalidate>
 
     <!-- 1. Identificação -->

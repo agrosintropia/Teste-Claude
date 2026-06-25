@@ -1,5 +1,120 @@
 'use strict';
 
+// ── Upload e extração via IA ──────────────────────────────────────────────────
+
+const dropZone      = document.getElementById('drop-zone');
+const uploadInput   = document.getElementById('upload-input');
+const btnBrowse     = document.getElementById('btn-browse');
+const btnExtract    = document.getElementById('btn-extract');
+const uploadStatus  = document.getElementById('upload-status');
+const extractResult = document.getElementById('extract-result');
+const extractError  = document.getElementById('extract-error');
+const extractNotes  = document.getElementById('extract-notes');
+
+let selectedFile = null;
+
+btnBrowse.addEventListener('click', () => uploadInput.click());
+uploadInput.addEventListener('change', () => setFile(uploadInput.files[0]));
+
+dropZone.addEventListener('click', (e) => { if (e.target !== btnBrowse) uploadInput.click(); });
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  setFile(e.dataTransfer.files[0]);
+});
+
+function setFile(file) {
+  if (!file) return;
+  const allowed = ['application/pdf','image/jpeg','image/png','image/webp'];
+  if (!allowed.includes(file.type)) {
+    showExtractError('Formato inválido. Use PDF, JPG, PNG ou WEBP.');
+    return;
+  }
+  selectedFile = file;
+  dropZone.classList.add('has-file');
+  uploadStatus.textContent = `📎 ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+  uploadStatus.style.display = 'block';
+  btnExtract.style.display = 'flex';
+  hideExtractFeedback();
+}
+
+btnExtract.addEventListener('click', async () => {
+  if (!selectedFile) return;
+
+  btnExtract.disabled = true;
+  btnExtract.classList.add('loading');
+  document.getElementById('spinner-extract').style.display = 'block';
+  document.getElementById('btn-extract-text').textContent = 'Extraindo com IA...';
+  hideExtractFeedback();
+
+  try {
+    const formData = new FormData();
+    formData.append('laudo', selectedFile);
+
+    const res = await fetch('/api/extract', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Erro HTTP ${res.status}`);
+
+    prefillSoilFields(data);
+
+    extractResult.style.display = 'block';
+    if (data.notas) {
+      extractNotes.textContent = `ℹ️ ${data.notas}`;
+      extractNotes.style.display = 'block';
+    }
+  } catch (err) {
+    showExtractError(err.message || 'Erro ao processar o arquivo.');
+  } finally {
+    btnExtract.disabled = false;
+    btnExtract.classList.remove('loading');
+    document.getElementById('spinner-extract').style.display = 'none';
+    document.getElementById('btn-extract-text').textContent = '⚡ Extrair Dados com IA';
+  }
+});
+
+/** Pre-preenche os campos de análise de solo e anima os que foram preenchidos. */
+function prefillSoilFields(data) {
+  const mapping = {
+    pH_CaCl2: 'pH_CaCl2', pH_H2O: 'pH_H2O',
+    MO: 'MO', P: 'P', K: 'K',
+    Ca: 'Ca', Mg: 'Mg', Al: 'Al',
+    HplusAl: 'HplusAl', CTC: 'CTC', V: 'V',
+    B: 'B', Zn: 'Zn',
+  };
+  for (const [key, id] of Object.entries(mapping)) {
+    if (data[key] !== undefined && data[key] !== null) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = data[key];
+        el.classList.remove('ai-filled');
+        void el.offsetWidth; // reflow para reiniciar animação
+        el.classList.add('ai-filled');
+      }
+    }
+  }
+  if (data.textura) {
+    const sel = document.getElementById('textura');
+    if (sel) sel.value = data.textura;
+  }
+  // rolar para a seção de solo
+  document.getElementById('pH_CaCl2')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showExtractError(msg) {
+  extractError.textContent = '⚠️ ' + msg;
+  extractError.style.display = 'block';
+}
+function hideExtractFeedback() {
+  extractResult.style.display = 'none';
+  extractError.style.display  = 'none';
+  extractNotes.style.display  = 'none';
+  extractNotes.textContent    = '';
+}
+
+// ── Geração do laudo ──────────────────────────────────────────────────────────
+
 document.getElementById('form').addEventListener('submit', async (e) => {
   e.preventDefault();
 

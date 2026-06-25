@@ -1,14 +1,26 @@
 'use strict';
 
+require('dotenv').config();
+
 const express = require('express');
+const multer  = require('multer');
 const path    = require('path');
 const { Packer } = require('docx');
 
-const { recommend }  = require('./lib/recommender');
-const { buildLaudo } = require('./lib/builder');
+const { recommend }      = require('./lib/recommender');
+const { buildLaudo }     = require('./lib/builder');
+const { extractSoilData } = require('./lib/extractor');
 
-const app  = express();
-const PORT = process.env.PORT || 3000;
+const app    = express();
+const PORT   = process.env.PORT || 3000;
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits:  { fileSize: 15 * 1024 * 1024 }, // 15 MB
+  fileFilter(req, file, cb) {
+    const allowed = ['application/pdf','image/jpeg','image/png','image/webp'];
+    cb(allowed.includes(file.mimetype) ? null : new Error('Formato não suportado. Use PDF, JPG, PNG ou WEBP.'), allowed.includes(file.mimetype));
+  },
+});
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -32,6 +44,17 @@ app.post('/api/generate', async (req, res) => {
   } catch (err) {
     console.error('Erro ao gerar laudo:', err);
     res.status(500).json({ error: err.message || 'Erro interno ao gerar o laudo.' });
+  }
+});
+
+app.post('/api/extract', upload.single('laudo'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
+    const data = await extractSoilData(req.file.buffer, req.file.mimetype);
+    res.json(data);
+  } catch (err) {
+    console.error('Erro na extração:', err);
+    res.status(500).json({ error: err.message || 'Erro ao processar o arquivo.' });
   }
 });
 
