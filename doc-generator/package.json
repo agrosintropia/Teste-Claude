@@ -1,0 +1,13 @@
+{
+  "name": "agrosintropia-doc-generator",
+  "version": "1.0.0",
+  "description": "Gerador de documentos técnicos — Agrosintropia",
+  "main": "gera-base-tecnica.js",
+  "scripts": {
+    "generate": "node gera-base-tecnica.js",
+    "generate:out": "node gera-base-tecnica.js"
+  },
+  "dependencies": {
+    "docx": "^8.5.0"
+  }
+}
