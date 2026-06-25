@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agrosintropia — Gerador de Laudos de Adubação</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <div class="logo">🌿</div>
+  <div>
+    <h1>Agrosintropia</h1>
+    <p>Gerador de Laudos de Recomendação de Adubação Orgânica em SAFs</p>
+  </div>
+</header>
+
+<main>
+  <form id="form" novalidate>
+
+    <!-- 1. Identificação -->
+    <div class="card">
+      <div class="card-title"><span class="card-num">1</span>Identificação</div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="cliente">Produtor / Cliente <span class="req">*</span></label>
+          <input type="text" id="cliente" name="cliente" required placeholder="Nome do produtor" />
+        </div>
+        <div class="field">
+          <label for="propriedade">Propriedade <span class="req">*</span></label>
+          <input type="text" id="propriedade" name="propriedade" required placeholder="Nome da fazenda / sítio" />
+        </div>
+        <div class="field">
+          <label for="municipio">Município / UF <span class="req">*</span></label>
+          <input type="text" id="municipio" name="municipio" required placeholder="Ex: Uruçuca-BA" />
+        </div>
+        <div class="field">
+          <label for="talhao">Talhão / Área</label>
+          <input type="text" id="talhao" name="talhao" placeholder="Ex: Talhão 1 — cacaueiro adulto" />
+        </div>
+        <div class="field">
+          <label for="dataAnalise">Data da Análise de Solo <span class="req">*</span></label>
+          <input type="date" id="dataAnalise" name="dataAnalise" required />
+        </div>
+        <div class="field">
+          <label for="area">Área (hectares)</label>
+          <input type="number" id="area" name="area" min="0.01" step="0.1" placeholder="Ex: 5.0" />
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Culturas -->
+    <div class="card">
+      <div class="card-title"><span class="card-num">2</span>Culturas Principais</div>
+      <div class="cultures-grid">
+        <label class="checkbox-row"><input type="checkbox" name="culturas" value="cafe" /><span>Café</span></label>
+        <label class="checkbox-row"><input type="checkbox" name="culturas" value="cacau" /><span>Cacau</span></label>
+        <label class="checkbox-row"><input type="checkbox" name="culturas" value="citros" /><span>Citros (laranja/limão)</span></label>
+        <label class="checkbox-row"><input type="checkbox" name="culturas" value="manga" /><span>Manga</span></label>
+        <label class="checkbox-row"><input type="checkbox" name="culturas" value="abacate" /><span>Abacate</span></label>
+        <label class="checkbox-row"><input type="checkbox" name="culturas" value="banana" /><span>Banana</span></label>
+      </div>
+    </div>
+
+    <!-- 3. Características do SAF -->
+    <div class="card">
+      <div class="card-title"><span class="card-num">3</span>Características do SAF</div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="cobertura">Cobertura do Solo <span class="req">*</span></label>
+          <select id="cobertura" name="cobertura" required>
+            <option value="">— Selecione —</option>
+            <option value="descoberto">Descoberto (sem cobertura)</option>
+            <option value="esparsa">Esparsa (&lt; 30%)</option>
+            <option value="moderada">Moderada (30–70%)</option>
+            <option value="boa">Boa (70–90%)</option>
+            <option value="excelente">Excelente (&gt; 90%)</option>
+          </select>
+        </div>
+        <div></div>
+      </div>
+      <div style="margin-top:16px;">
+        <label style="margin-bottom:8px;">Componentes do SAF presentes:</label>
+        <div class="checkbox-group">
+          <label class="checkbox-row">
+            <input type="checkbox" id="saf_leguminosas" name="saf_leguminosasArboreas" />
+            <span>Leguminosas arbóreas (gliricidia, leucena, guandu)</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="saf_bananeiras" name="saf_bananeiras" />
+            <span>Bananeiras em alta densidade (&gt; 400/ha)</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="saf_adensadoras" name="saf_especiesAdensadoras" />
+            <span>Espécies adensadoras de MO (ingá, leucena, gliricidia com podas)</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="saf_anuais" name="saf_anuaisIntercalares" />
+            <span>Culturas anuais intercalares (milho, feijão, mandioca)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Análise de Solo -->
+    <div class="card">
+      <div class="card-title"><span class="card-num">4</span>Análise de Solo</div>
+      <div class="soil-grid">
+        <div class="field">
+          <label for="pH_CaCl2">pH (CaCl₂) <span class="req">*</span></label>
+          <input type="number" id="pH_CaCl2" name="pH_CaCl2" required min="3" max="8" step="0.1" placeholder="Ex: 4.8" />
+        </div>
+        <div class="field">
+          <label for="pH_H2O">pH (H₂O) <em class="hint" style="display:inline">(opc.)</em></label>
+          <input type="number" id="pH_H2O" name="pH_H2O" min="3" max="9" step="0.1" placeholder="Ex: 5.3" />
+        </div>
+        <div class="field">
+          <label for="MO">MO % dag/kg <span class="req">*</span></label>
+          <input type="number" id="MO" name="MO" required min="0" max="20" step="0.1" placeholder="Ex: 2.1" />
+        </div>
+        <div class="field">
+          <label for="P">P mg/dm³ (Mehlich-1) <span class="req">*</span></label>
+          <input type="number" id="P" name="P" required min="0" step="0.1" placeholder="Ex: 6.5" />
+        </div>
+        <div class="field">
+          <label for="K">K cmolc/dm³ <span class="req">*</span></label>
+          <input type="number" id="K" name="K" required min="0" step="0.01" placeholder="Ex: 0.12" />
+        </div>
+        <div class="field">
+          <label for="Ca">Ca cmolc/dm³ <span class="req">*</span></label>
+          <input type="number" id="Ca" name="Ca" required min="0" step="0.1" placeholder="Ex: 2.1" />
+        </div>
+        <div class="field">
+          <label for="Mg">Mg cmolc/dm³ <span class="req">*</span></label>
+          <input type="number" id="Mg" name="Mg" required min="0" step="0.1" placeholder="Ex: 0.9" />
+        </div>
+        <div class="field">
+          <label for="Al">Al cmolc/dm³ <span class="req">*</span></label>
+          <input type="number" id="Al" name="Al" required min="0" step="0.1" placeholder="Ex: 0.4" />
+        </div>
+        <div class="field">
+          <label for="HplusAl">H+Al cmolc/dm³ <em class="hint" style="display:inline">(opc.)</em></label>
+          <input type="number" id="HplusAl" name="HplusAl" min="0" step="0.1" placeholder="Ex: 3.5" />
+          <span class="hint">Usado para calcular CTC</span>
+        </div>
+        <div class="field">
+          <label for="CTC">CTC cmolc/dm³ <em class="hint" style="display:inline">(opc.)</em></label>
+          <input type="number" id="CTC" name="CTC" min="0" step="0.1" placeholder="Calculado se vazio" />
+        </div>
+        <div class="field">
+          <label for="V">V% sat. bases <em class="hint" style="display:inline">(opc.)</em></label>
+          <input type="number" id="V" name="V" min="0" max="100" step="0.1" placeholder="Calculado se vazio" />
+        </div>
+        <div class="field">
+          <label for="B">B mg/dm³ <em class="hint" style="display:inline">(opc.)</em></label>
+          <input type="number" id="B" name="B" min="0" step="0.01" placeholder="Ex: 0.15" />
+        </div>
+        <div class="field">
+          <label for="Zn">Zn mg/dm³ <em class="hint" style="display:inline">(opc.)</em></label>
+          <input type="number" id="Zn" name="Zn" min="0" step="0.1" placeholder="Ex: 0.8" />
+        </div>
+        <div class="field">
+          <label for="textura">Textura do Solo</label>
+          <select id="textura" name="textura">
+            <option value="argilosa">Argilosa (&gt; 35% argila)</option>
+            <option value="media_arenosa">Média / Arenosa (&lt; 35%)</option>
+          </select>
+        </div>
+      </div>
+      <div class="calc-note">
+        💡 <strong>CTC</strong> e <strong>V%</strong> são calculados automaticamente se não informados (a partir de Ca + Mg + K + H+Al).
+      </div>
+    </div>
+
+    <!-- 5. Calcário -->
+    <div class="card">
+      <div class="card-title"><span class="card-num">5</span>Calcário (para cálculo da NC)</div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="calcario_PRNT">PRNT do Calcário (%)</label>
+          <input type="number" id="calcario_PRNT" name="calcario_PRNT" min="1" max="130" step="1" value="85" placeholder="85" />
+          <span class="hint">Poder Relativo de Neutralização Total. Default: 85%</span>
+        </div>
+        <div class="field">
+          <label for="calcario_tipo">Tipo de Calcário</label>
+          <select id="calcario_tipo" name="calcario_tipo">
+            <option value="dolomitico">Calcário Dolomítico (Ca + Mg)</option>
+            <option value="calcitico">Calcário Calcítico (Ca)</option>
+            <option value="filler">Calcário Filler (pó fino)</option>
+            <option value="conchas">Calcário de Conchas / Mariscos</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn-submit" id="btn-gerar">
+      <div class="spinner" id="spinner"></div>
+      <span class="btn-text" id="btn-text">🌱 Gerar Laudo de Recomendação</span>
+    </button>
+    <div id="error-msg"></div>
+
+  </form>
+</main>
+
+<footer>
+  Agrosintropia — Consultoria em Sistemas Agroflorestais &bull; Serra Grande, Uruçuca — Bahia, Brasil
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
