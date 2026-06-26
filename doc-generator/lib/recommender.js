@@ -103,6 +103,8 @@ const V2_TARGET = {
 };
 
 // ── Culture maintenance doses ─────────────────────────────────────────────────
+// Yoorin Master (termofosfato magnesiano) = 1ª opção P: 18% P₂O₅ + Ca + Mg + Si + micronutrientes.
+// Ekosil (silicato de potássio) = 1ª opção K: 14% K₂O + 30% SiO₂; fortalece parede celular.
 
 const CULTURA_DOSES = {
   cafe: {
@@ -112,10 +114,12 @@ const CULTURA_DOSES = {
       { insumo: 'Esterco bovino curtido (1,5% N)', dose: '2.500–3.000 kg/ha', obs: 'Alternativa regional' },
       { insumo: 'Composto orgânico (1,8% N)', dose: '2.000–2.500 kg/ha', obs: 'Melhora estrutura do solo' },
       { insumo: 'Torta de mamona (4,5% N)', dose: '500–700 kg/ha', obs: 'Nematicida; ótimo para N' },
-      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '200–300 kg/ha', obs: 'Melhor fonte orgânica de P' },
-      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '150–250 kg/ha', obs: 'Fonte rápida de K; atenção ao pH' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '300–500 kg/ha', obs: '1ª opção P: P + Ca + Mg + Si + micronutrientes; liberação gradual; aprovado em orgânicos' },
+      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '200–300 kg/ha', obs: 'Alternativa P: liberação lenta' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '30–50 L/ha (solo) ou 3–5 mL/L (foliar)', obs: '1ª opção K: fortalece parede celular; reduz pressão de fungos; fonte de K + Si' },
+      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '150–250 kg/ha', obs: 'Alternativa K: fonte rápida; atenção ao pH' },
     ],
-    parcelamento: '3–4 aplicações no período chuvoso (Out–Mar). 1ª aplicação em Out/Nov com cama de frango; 2ª em Dez/Jan com composto + farinha de osso; 3ª em Mar/Abr com torta ou composto.',
+    parcelamento: '3–4 aplicações no período chuvoso (Out–Mar). 1ª aplicação em Out/Nov com cama de frango; 2ª em Dez/Jan com composto + Yoorin; 3ª em Mar/Abr com torta ou composto.',
     observacoes: 'Aplicar sob a copa, 20–30 cm do caule. Em SAF com sombreamento moderado, doses de manutenção são suficientes.',
   },
   cacau: {
@@ -124,7 +128,9 @@ const CULTURA_DOSES = {
       { insumo: 'Composto orgânico/esterco curtido', dose: '8–15 kg/planta/ano', obs: 'Base do programa de adubação' },
       { insumo: 'Cama de frango', dose: '800–1.200 kg/ha', obs: 'Rica em N e P' },
       { insumo: 'Torta de cacau (subproduto)', dose: '500–800 kg/ha', obs: 'Insumo local; rica em K' },
-      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '150–250 g/planta', obs: 'Fonte de P de liberação lenta' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '150–300 g/planta/ano', obs: '1ª opção P: P + Ca + Mg + Si + micronutrientes; liberação gradual' },
+      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '150–250 g/planta', obs: 'Alternativa P: liberação lenta' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '3–5 mL/L foliar (3–4x/ano)', obs: '1ª opção K: fortalece casca do fruto; reduz vassoura-de-bruxa; fonte K + Si' },
       { insumo: 'Cobertura morta (casca de cacau)', dose: '5–8 kg/planta', obs: 'Insumo mais estratégico; ciclagem local' },
     ],
     parcelamento: '2–3 aplicações/ano, preferencialmente no início e meio do período chuvoso.',
@@ -135,8 +141,10 @@ const CULTURA_DOSES = {
     manutencao: [
       { insumo: 'Cama de frango (3% N)', dose: '1.500–2.000 kg/ha', obs: 'Principal fonte; dividir em 3 aplicações' },
       { insumo: 'Composto orgânico (2% N)', dose: '2.000–3.000 kg/ha', obs: 'Complementar; melhora estrutura' },
-      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '150–200 kg/ha', obs: 'Aplicar na cova e anualmente' },
-      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '200–300 kg/ha', obs: 'Aplicar em cobertura; atenção ao pH' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '300–500 kg/ha', obs: '1ª opção P: P + Ca + Mg + Si + micronutrientes; liberação gradual' },
+      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '150–200 kg/ha', obs: 'Alternativa P: aplicar na cova e anualmente' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '30–50 L/ha (solo) ou 3–5 mL/L (foliar)', obs: '1ª opção K: K + Si; reduz cancro cítrico e manchas fúngicas' },
+      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '200–300 kg/ha', obs: 'Alternativa K; atenção ao pH' },
       { insumo: 'Torta de mamona (4,5% N)', dose: '300–500 kg/ha', obs: 'Nematicida; ótimo para pomares' },
     ],
     parcelamento: '3 aplicações no período chuvoso.',
@@ -146,7 +154,9 @@ const CULTURA_DOSES = {
     nome: 'Manga (Mangifera indica L.)',
     manutencao: [
       { insumo: 'Cama de frango', dose: '10–20 kg/planta/ano', obs: 'Dividir pré-floração e pós-colheita' },
-      { insumo: 'Farinha de osso', dose: '200–300 g/planta/ano', obs: 'Aplicar 60 dias antes da floração' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '200–400 g/planta/ano', obs: '1ª opção P: liberação gradual; Ca + Mg + Si inclusos' },
+      { insumo: 'Farinha de osso', dose: '200–300 g/planta/ano', obs: 'Alternativa P: 60 dias antes da floração' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '3–5 mL/L foliar (3–4x/ano)', obs: '1ª opção K foliar: K + Si; reduz antracnose e ataque de trips' },
       { insumo: 'B (bórax 0,2%) — foliar', dose: '3–4 pulverizações', obs: 'Diferenciação floral; crítico' },
       { insumo: 'Zn (ZnSO₄ 0,3%) — foliar', dose: '2–3 pulverizações', obs: 'Durante enchimento dos frutos' },
     ],
@@ -158,8 +168,10 @@ const CULTURA_DOSES = {
     manutencao: [
       { insumo: 'Composto maduro (2% N)', dose: '3.000–5.000 kg/ha', obs: 'Base do programa; 2 aplicações/ano' },
       { insumo: 'Torta de mamona (4,5% N)', dose: '200–400 kg/ha', obs: 'Pré-floração; nematicida' },
-      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '100–200 kg/ha', obs: 'Na cova e cobertura anual' },
-      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '200–400 kg/ha', obs: 'Não elevar pH acima de 6,0' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '200–400 kg/ha', obs: '1ª opção P: liberação gradual; Ca + Mg + Si inclusos' },
+      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '100–200 kg/ha', obs: 'Alternativa P: na cova e cobertura anual' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '30–50 L/ha (solo) ou 3–5 mL/L (foliar)', obs: '1ª opção K: K + Si; reduz Phytophthora e manchas em frutos' },
+      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '200–400 kg/ha', obs: 'Alternativa K; não elevar pH acima de 6,0' },
       { insumo: 'Bokashi (2,5% N)', dose: '500–800 kg/ha', obs: 'Estimula microbiota; 4x/ano' },
     ],
     parcelamento: '2–4 aplicações/ano ao longo do período chuvoso.',
@@ -170,13 +182,87 @@ const CULTURA_DOSES = {
     manutencao: [
       { insumo: 'Cama de frango', dose: '1.200–1.800 kg/ha/ano', obs: 'Fonte principal de N' },
       { insumo: 'Composto orgânico', dose: '3.000–5.000 kg/ha/ano', obs: 'Manutenção da MO e estrutura' },
-      { insumo: 'Cinzas vegetais (K₂O)', dose: '300–500 kg/ha', obs: 'K é o nutriente mais crítico para banana' },
-      { insumo: 'Farinha de osso', dose: '200–300 kg/ha', obs: 'Fonte de P' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '30–60 L/ha (solo) ou 3–5 mL/L (foliar)', obs: '1ª opção K: K + Si; reduz sigatoka e fraqueza de engaço' },
+      { insumo: 'Cinzas vegetais (K₂O)', dose: '300–500 kg/ha', obs: 'Alternativa K; nutriente mais crítico para banana' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '300–500 kg/ha', obs: '1ª opção P: liberação gradual; Ca + Mg + Si inclusos' },
+      { insumo: 'Farinha de osso', dose: '200–300 kg/ha', obs: 'Alternativa P: liberação lenta' },
     ],
     parcelamento: '4–6 aplicações distribuídas no período chuvoso.',
-    observacoes: 'K é o nutriente mais limitante. A palhiço da banana contribui significativamente para ciclagem de K.',
+    observacoes: 'K é o nutriente mais limitante. O palhiço da banana contribui significativamente para ciclagem de K.',
   },
 };
+
+// ── Biological fertilizers database ──────────────────────────────────────────
+// Fontes: Embrapa Agrobiologia, CEPLAC, Embrapa Solos, IAC, Pesagro-Rio
+
+const BIOFERTILIZANTES_FOLIARES = [
+  {
+    produto: 'Biofertilizante Supermagro (líquido fermentado)',
+    modo: 'Foliar',
+    dose: '20–30 mL/L de água',
+    frequencia: 'A cada 15–30 dias',
+    obs: 'Fonte completa de micronutrientes + aminoácidos + microrganismos. Fermentação de 30 dias com esterco, leite, melaço e sais minerais. Ref.: Pesagro-Rio / Embrapa Solos.',
+  },
+  {
+    produto: 'Ekosil (silicato de potássio — 14% K₂O + 30% SiO₂)',
+    modo: 'Foliar',
+    dose: '3–5 mL/L de água',
+    frequencia: '3–4 aplicações/ano',
+    obs: 'Fortalece parede celular; reduz penetração de fungos e insetos; fonte de K + Si. Indicado preventivamente em cacau, citros e banana. Também aplicável no solo: 20–50 L/ha.',
+  },
+  {
+    produto: 'Extrato de algas (Ascophyllum nodosum / Sargassum spp.)',
+    modo: 'Foliar',
+    dose: '2–4 mL/L de água',
+    frequencia: 'Mensal na fase de floração e frutificação',
+    obs: 'Rico em citocininas, auxinas e betaínas. Melhora pegamento de frutos, tolerância a estresses e absorção de nutrientes. Ref.: Embrapa Hortaliças / IAC.',
+  },
+  {
+    produto: 'Calda Viçosa (micronutrientes em calda)',
+    modo: 'Foliar',
+    dose: '30–40 mL/L de água',
+    frequencia: '2–3 vezes/ano',
+    obs: 'Correção foliar de Zn, Cu, Mn, Mg e B. Preparar: sulfato de Zn 300 g + sulfato de Cu 100 g + sulfato de Mg 200 g + ácido bórico 100 g + cal hidratada 100 g / 100 L água. Ref.: UFV / EPAMIG.',
+  },
+];
+
+const BIOFERTILIZANTES_SOLO = [
+  {
+    produto: 'Azospirillum brasilense (inoculante — ex: Nite Max, Masterfix)',
+    modo: 'Solo / sementes / mudas',
+    dose: '100–200 mL/ha; ou 10 mL/100 mudas',
+    frequencia: 'Plantio e replantio',
+    obs: 'Bactéria fixadora associativa de N (20–40 kg N/ha/ano). Produz auxinas que estimulam enraizamento. Aplicar via rega ou inoculação de mudas. Ref.: Embrapa Agrobiologia.',
+  },
+  {
+    produto: 'Fungos Micorrízicos Arbusculares — FMA (ex: Biomix, Rizofert)',
+    modo: 'Solo / cova de plantio',
+    dose: '50–100 g/cova no plantio',
+    frequencia: 'Única dose no plantio',
+    obs: 'Ampliam área de absorção de P, Zn e Cu em até 10×. Essenciais em solos de baixa fertilidade. Não aplicar junto com fungicidas. Ref.: Embrapa Cerrados / Embrapa Solos.',
+  },
+  {
+    produto: 'Trichoderma harzianum / asperellum (ex: BioTrich, Trichodermil)',
+    modo: 'Solo / cova / rega',
+    dose: '2–4 kg/ha (pó molhável) ou 10–20 g/cova',
+    frequencia: '2–3 aplicações/ano; ou cova no plantio',
+    obs: 'Controle biológico de Phytophthora, Fusarium, Sclerotinia. Estimula crescimento radicular e induz resistência sistêmica. Ref.: IAC / Embrapa Meio Ambiente.',
+  },
+  {
+    produto: 'Bacillus subtilis / B. amyloliquefaciens (ex: BioYamashita, Serenade)',
+    modo: 'Solo / foliar',
+    dose: '2–4 L/ha (suspensão); ou 3–5 mL/L foliar',
+    frequencia: '2–4 aplicações/ano; preventivo',
+    obs: 'Supressão de doenças fúngicas (vassoura-de-bruxa, antracnose, sigatoka). Induz resistência sistêmica. Seguro para fauna e flora. Ref.: Embrapa Agroindústria Tropical / CEPLAC.',
+  },
+  {
+    produto: 'EM (Micro-organismos Eficientes) — EM-1 ou bokashi líquido',
+    modo: 'Solo / foliar',
+    dose: '10–20 L/ha em 200 L de água (solo); 5–10 mL/L (foliar)',
+    frequencia: 'A cada 30–45 dias na entressafra',
+    obs: 'Ativa microbiota do solo; acelera decomposição de matéria orgânica; melhora agregação do solo. Preparar EM-A (ativado) com melaço 1% por 7 dias. Ref.: Embrapa Solos / Rede Agroecológica.',
+  },
+];
 
 // ── Coverage modifiers ────────────────────────────────────────────────────────
 
@@ -247,11 +333,14 @@ function recommend(data) {
   const relCaMg = Mg > 0 ? Ca / Mg : null;
   const relOk   = relCaMg !== null ? (relCaMg >= 1 && relCaMg <= 8) : true;
 
+  const pBaixo = pInfo.classe.includes('baixo') || pInfo.classe === 'Baixo' || pInfo.classe === 'Muito baixo';
+  const kBaixo = kInfo.classe.includes('baixo') || kInfo.classe === 'Baixo' || kInfo.classe === 'Muito baixo';
+
   const interpretacao = {
     pH:  { valor: pH,  ...phInfo },
     MO:  { valor: MO,  ...moInfo },
-    P:   { valor: P,   ...pInfo,  acao: pInfo.classe.includes('baixo') || pInfo.classe === 'Baixo' ? 'Aumentar dose de P; farinha de osso + composto na cova' : 'Manutenção padrão' },
-    K:   { valor: K,   ...kInfo,  acao: kInfo.classe.includes('baixo') || kInfo.classe === 'Baixo' ? 'Priorizar cinzas e fonolito na mistura' : 'Manutenção padrão' },
+    P:   { valor: P,   ...pInfo,  acao: pBaixo ? 'Aumentar dose de P; priorizar Yoorin Master (termofosfato) + farinha de osso' : 'Manutenção padrão' },
+    K:   { valor: K,   ...kInfo,  acao: kBaixo ? 'Priorizar Ekosil (silicato de K) + cinzas vegetais na mistura' : 'Manutenção padrão' },
     Ca:  { valor: Ca,  ...caInfo },
     Mg:  { valor: Mg,  ...mgInfo },
     Al:  { valor: Al,  mPct: parseFloat(mPct.toFixed(1)), ...alInfo },
@@ -319,7 +408,6 @@ function recommend(data) {
     const base = CULTURA_DOSES[cult];
     if (!base) continue;
 
-    // Build a note about coverage modifier
     let modNote = '';
     if (cobertura !== 'moderada') {
       const nMod = ((covMod.N - 1) * 100).toFixed(0);
@@ -356,13 +444,34 @@ function recommend(data) {
     microFoliar.push({ nutriente: 'Magnésio (Mg)', produto: 'Sulfato de magnésio 0,5–1,0%', frequencia: '2–3x/ano', obs: 'Correção rápida de deficiência; complementar ao calcário dolomítico' });
   }
 
+  // ── Fertilizantes biológicos ────────────────────────────────────────────────
+  // Always recommend the full list; some entries may be highlighted as priority
+  const biofertilizantes = {
+    foliares: BIOFERTILIZANTES_FOLIARES,
+    solo: BIOFERTILIZANTES_SOLO,
+  };
+
+  // ── Hidrogel biodegradável ──────────────────────────────────────────────────
+  const sequeiro = cobertura === 'descoberto' || cobertura === 'esparsa';
+  const hidrogel = sequeiro ? {
+    recomendar: true,
+    descricao: 'Hidrogel biodegradável à base de amido (mandioca) ou celulose — ex: Agrogel BD, Forth Hidrogel, Hidroplan Bio.',
+    doses: [
+      { cultura: 'Árvores (cacau, café, manga, abacate, citros)', dose: '30–50 g de hidrogel seco/cova (equivale a 15–25 L de retenção de água)' },
+      { cultura: 'Banana (rizoma)', dose: '20–30 g de hidrogel seco/cova' },
+      { cultura: 'Mudas em geral', dose: '5–10 g de hidrogel seco misturado ao substrato da muda' },
+    ],
+    modo: 'Hidratar o hidrogel em água por 30–60 minutos antes do uso (1 g absorve ~300–500 mL de água). Misturar ao solo da cova na profundidade da zona radicular (20–40 cm). Repetir a cada 2–3 anos conforme degradação.',
+    obs: 'Polímeros biodegradáveis (amido/celulose) se degradam em 2–4 anos sem resíduos tóxicos. Evitar hidrogéis de poliacrilamida sintética (não biodegradáveis). Reduz mortalidade de mudas em sequeiro em 30–60%. Ref.: Embrapa Cerrados, Embrapa Mandioca e Fruticultura.',
+  } : { recomendar: false };
+
   // ── Adubação verde ──────────────────────────────────────────────────────────
   const adubacaoVerde = [];
 
   if (cobertura === 'descoberto' || cobertura === 'esparsa') {
     adubacaoVerde.push(
       { especie: 'Crotalária juncea', tipo: 'Leguminosa anual', N: '100–180 kg N/ha', uso: 'Entressafra; nematicida; roçar antes da floração' },
-      { especie: 'Mucuna preta (M. pruriens)', tipo: 'Leguminosa anual', N: '120–200 kg N/ha', uso: 'Excelente cobertura; supressão de invasoras' },
+      { especie: 'Feijão de porco (Canavalia ensiformis)', tipo: 'Leguminosa anual', N: '80–150 kg N/ha', uso: 'Excelente cobertura; supressão de invasoras; não invasiva' },
       { especie: 'Feijão guandu (Cajanus cajan)', tipo: 'Leguminosa perene', N: '80–140 kg N/ha', uso: 'Raiz profunda; componente permanente do SAF' }
     );
   }
@@ -370,11 +479,10 @@ function recommend(data) {
   if (!saf.leguminosasArboreas) {
     adubacaoVerde.push(
       { especie: 'Gliricidia (G. sepium)', tipo: 'Árvore leguminosa', N: '50–100 kg N/ha/ano', uso: 'Componente permanente do SAF; banco de proteína e fertilizante' },
-      { especie: 'Leucena (L. leucocephala)', tipo: 'Árvore leguminosa', N: '80–150 kg N/ha/ano', uso: 'Tolerante à seca; podas frequentes fornecem cobertura morta' }
+      { especie: 'Ingá (Inga spp. — nativo)', tipo: 'Árvore leguminosa nativa', N: '40–80 kg N/ha/ano', uso: 'Excelente sombreamento provisório; fruta nativa; serapilheira rica' }
     );
   }
 
-  // Always recommend amendoim forrageiro for pathways
   adubacaoVerde.push(
     { especie: 'Amendoim forrageiro (A. pintoi)', tipo: 'Leguminosa perene', N: '40–80 kg N/ha/ano', uso: 'Cobertura viva permanente para caminhos e entrelinhas do SAF' }
   );
@@ -383,13 +491,13 @@ function recommend(data) {
   const safBonuses = [];
 
   if (saf.leguminosasArboreas) {
-    safBonuses.push('Leguminosas arbóreas presentes (gliricidia/leucena/guandu): reduzir dose de N em 30–40% nas culturas sob influência direta.');
+    safBonuses.push('Leguminosas arbóreas presentes (gliricidia/guandu/ingá): reduzir dose de N em 30–40% nas culturas sob influência direta.');
   }
   if (saf.bananeiras) {
     safBonuses.push('Bananeiras > 400/ha: aporte significativo de K pela palhiço. Pode-se dispensar ou reduzir à metade a adubação potássica.');
   }
   if (saf.especiesAdensadoras) {
-    safBonuses.push('Espécies adensadoras de MO (ingá/leucena/gliricidia) com podas frequentes: reduzir dose de composto em 20–40%.');
+    safBonuses.push('Espécies adensadoras de MO (ingá/gliricidia) com podas frequentes: reduzir dose de composto em 20–40%.');
   }
   if (saf.anuaisIntercalares) {
     safBonuses.push('Culturas anuais intercalares presentes: considerar exportação de 30–50 kg N/ha pelo grão colhido ao calcular necessidade de N.');
@@ -407,6 +515,8 @@ function recommend(data) {
     calagem,
     adubacao,
     micronutrientes: { foliar: microFoliar, solo: microSolo },
+    biofertilizantes,
+    hidrogel,
     adubacaoVerde,
     safBonuses,
     coberturaNote: COVERAGE_NOTES[cobertura] || COVERAGE_NOTES.moderada,

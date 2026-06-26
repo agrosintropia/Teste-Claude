@@ -340,22 +340,79 @@ function sectionMicro(result) {
   return items;
 }
 
+// ── Biological fertilizers section ───────────────────────────────────────────
+
+function sectionBiofertilizantes(result) {
+  const bio = result.biofertilizantes;
+  if (!bio) return [];
+
+  return [
+    h1('5. FERTILIZANTES BIOLÓGICOS E CONDICIONADORES'),
+    p('O uso de biofertilizantes e inoculantes microbiológicos potencializa a eficiência da adubação orgânica, ativa a microbiota do solo e reduz a pressão de doenças. As recomendações abaixo baseiam-se em evidências da Embrapa Agrobiologia, CEPLAC, IAC e Pesagro-Rio.'),
+    spacer(),
+    h2('5.1 Aplicação Foliar'),
+    spacer(),
+    makeTable(
+      ['Produto', 'Dose', 'Frequência', 'Observação'],
+      bio.foliares.map(m => [m.produto, m.dose, m.frequencia, m.obs]),
+      [2500, 1800, 1500, 3300],
+    ),
+    spacer(),
+    h2('5.2 Inoculantes e Condicionadores de Solo'),
+    spacer(),
+    makeTable(
+      ['Produto', 'Dose', 'Frequência', 'Observação'],
+      bio.solo.map(m => [m.produto, m.dose, m.frequencia, m.obs]),
+      [2500, 1800, 1500, 3300],
+    ),
+    spacer(),
+    p('Não aplicar fungicidas químicos nas 48 horas anteriores ou posteriores à inoculação com Trichoderma, Bacillus ou FMA. Armazenar inoculantes em local fresco, ao abrigo da luz solar direta.', { italics: true, size: THEME.size.small, color: THEME.color.gray }),
+    spacer(),
+  ];
+}
+
 // ── Green manure section ──────────────────────────────────────────────────────
 
 function sectionAdubacaoVerde(result) {
-  if (!result.adubacaoVerde || result.adubacaoVerde.length === 0) return [];
-
-  return [
-    h1('5. ADUBAÇÃO VERDE E COBERTURA DO SOLO'),
-    p('Espécies recomendadas para melhoria da cobertura, fixação de N e ciclagem de nutrientes no SAF:'),
-    spacer(),
-    makeTable(
-      ['Espécie', 'Tipo', 'N Fixado/Fornecido', 'Uso no SAF'],
-      result.adubacaoVerde.map(av => [av.especie, av.tipo, av.N, av.uso]),
-      [2300, 1800, 1800, 3200],
-    ),
-    spacer(),
+  const items = [
+    h1('6. ADUBAÇÃO VERDE, COBERTURA DO SOLO E HIDROGEL'),
   ];
+
+  if (result.adubacaoVerde && result.adubacaoVerde.length > 0) {
+    items.push(
+      h2('6.1 Espécies Recomendadas'),
+      p('Espécies para melhoria da cobertura, fixação de N e ciclagem de nutrientes no SAF:'),
+      spacer(),
+      makeTable(
+        ['Espécie', 'Tipo', 'N Fixado/Fornecido', 'Uso no SAF'],
+        result.adubacaoVerde.map(av => [av.especie, av.tipo, av.N, av.uso]),
+        [2300, 1800, 1800, 3200],
+      ),
+      spacer(),
+    );
+  }
+
+  if (result.hidrogel && result.hidrogel.recomendar) {
+    const hg = result.hidrogel;
+    items.push(
+      h2('6.2 Hidrogel Biodegradável (Plantios de Sequeiro)'),
+      p(hg.descricao),
+      spacer(),
+      makeTable(
+        ['Cultura / Situação', 'Dose recomendada por cova'],
+        hg.doses.map(d => [d.cultura, d.dose]),
+        [4500, 4600],
+      ),
+      spacer(),
+      h3('Modo de Aplicação:'),
+      p(hg.modo),
+      spacer(),
+      p(hg.obs, { italics: true, size: THEME.size.small, color: THEME.color.gray }),
+      spacer(),
+    );
+  }
+
+  return items;
 }
 
 // ── SAF considerations section ────────────────────────────────────────────────
@@ -364,7 +421,7 @@ function sectionSAF(result) {
   if (!result.safBonuses || result.safBonuses.length === 0) return [];
 
   const items = [
-    h1('6. CONSIDERAÇÕES SOBRE O SISTEMA AGROFLORESTAL'),
+    h1('7. CONSIDERAÇÕES SOBRE O SISTEMA AGROFLORESTAL'),
     p('Com base na estrutura do SAF informada, os seguintes ajustes e observações se aplicam:'),
     spacer(),
   ];
@@ -380,7 +437,7 @@ function sectionSAF(result) {
 
 function sectionProximosPassos(result) {
   return [
-    h1('7. PRÓXIMOS PASSOS E MONITORAMENTO'),
+    h1('8. PRÓXIMOS PASSOS E MONITORAMENTO'),
     h3('Recomendação de Nova Análise de Solo:'),
     p(`Realizar nova análise de solo no período ${result.proximaAnalise}. Preferencialmente no final da estação seca, antes do início do período chuvoso.`),
     spacer(),
@@ -499,6 +556,7 @@ function buildLaudo(result, data) {
         ...sectionCalagem(result),
         ...sectionAdubacao(result),
         ...sectionMicro(result),
+        ...sectionBiofertilizantes(result),
         ...sectionAdubacaoVerde(result),
         ...sectionSAF(result),
         ...sectionProximosPassos(result),
