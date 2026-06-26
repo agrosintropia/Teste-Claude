@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agrosintropia — Histórico de Laudos</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .historico-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    .historico-table th {
+      background: var(--green-mid); color: #fff;
+      padding: 10px 12px; text-align: left; font-weight: 600;
+    }
+    .historico-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-200); vertical-align: middle; }
+    .historico-table tr:nth-child(even) td { background: var(--green-card); }
+    .historico-table tr:hover td { background: var(--green-bg); }
+    .btn-dl {
+      padding: 5px 10px; font-size: 0.8rem; font-weight: 600;
+      border: none; border-radius: 4px; cursor: pointer;
+      text-decoration: none; display: inline-block; margin-right: 4px;
+    }
+    .btn-dl-docx { background: var(--green-mid);  color: #fff; }
+    .btn-dl-pdf  { background: var(--gray-600);   color: #fff; }
+    .btn-dl:hover { opacity: 0.85; }
+    .empty-msg { text-align: center; color: var(--gray-600); padding: 40px; font-size: 0.95rem; }
+    .tag {
+      display: inline-block; font-size: 0.75rem; padding: 2px 7px;
+      border-radius: 99px; background: var(--green-bg); color: var(--green-dark);
+      margin: 1px; font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🌿</div>
+  <div>
+    <h1>Agrosintropia</h1>
+    <p>Histórico de Laudos Gerados</p>
+  </div>
+  <nav class="header-nav">
+    <a href="/" class="nav-link">✏️ Novo Laudo</a>
+  </nav>
+</header>
+
+<main>
+  <div class="card">
+    <div class="card-title"><span class="card-num">📋</span>Laudos Gerados</div>
+    <div id="table-container">
+      <p class="empty-msg">Carregando...</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Agrosintropia — Consultoria em Sistemas Agroflorestais &bull; Serra Grande, Uruçuca — Bahia, Brasil
+</footer>
+
+<script>
+async function carregarHistorico() {
+  const container = document.getElementById('table-container');
+  try {
+    const res  = await fetch('/api/historico');
+    const rows = await res.json();
+    if (!res.ok) throw new Error(rows.error || 'Erro ao carregar histórico');
+    if (!rows.length) {
+      container.innerHTML = '<p class="empty-msg">Nenhum laudo gerado ainda. <a href="/">Gerar o primeiro laudo</a>.</p>';
+      return;
+    }
+    const culturaLabel = { cafe:'Café', cacau:'Cacau', citros:'Citros', manga:'Manga', abacate:'Abacate', banana:'Banana' };
+    container.innerHTML = `
+      <table class="historico-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Data / Hora</th><th>Cliente</th>
+            <th>Propriedade</th><th>Município</th><th>Talhão</th>
+            <th>Culturas</th><th>Download</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => {
+            const culturas = (JSON.parse(r.culturas || '[]'))
+              .map(c => `<span class="tag">${culturaLabel[c] || c}</span>`).join('');
+            return `<tr>
+              <td>${r.id}</td>
+              <td>${r.created_at}</td>
+              <td>${esc(r.cliente || '—')}</td>
+              <td>${esc(r.propriedade || '—')}</td>
+              <td>${esc(r.municipio || '—')}</td>
+              <td>${esc(r.talhao || '—')}</td>
+              <td>${culturas || '—'}</td>
+              <td>
+                <a class="btn-dl btn-dl-docx" href="/api/laudo/${r.id}/docx">⬇ .docx</a>
+                <a class="btn-dl btn-dl-pdf"  href="/api/laudo/${r.id}/pdf">⬇ .pdf</a>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+  } catch (err) {
+    container.innerHTML = `<p class="empty-msg" style="color:#DC2626">⚠️ ${err.message}</p>`;
+  }
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+carregarHistorico();
+</script>
+</body>
+</html>
