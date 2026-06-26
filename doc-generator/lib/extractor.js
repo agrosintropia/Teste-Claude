@@ -68,7 +68,7 @@ async function extractSoilData(buffer, mimeType) {
 
   const message = await client.messages.create({
     model:      'claude-haiku-4-5-20251001',
-    max_tokens: 1024,
+    max_tokens: 2048,
     messages:   [{ role: 'user', content: [contentBlock, { type: 'text', text: PROMPT }] }],
   });
 
@@ -76,7 +76,18 @@ async function extractSoilData(buffer, mimeType) {
   const jsonMatch = text.match(/\{[\s\S]+\}/);
   if (!jsonMatch) throw new Error('Claude não conseguiu extrair dados estruturados do arquivo. Tente uma imagem mais nítida ou o PDF original do laboratório.');
 
-  const extracted = JSON.parse(jsonMatch[0]);
+  // Limpar JSON antes de parsear: remove trailing commas e escapa quebras de linha em strings
+  const cleanJson = jsonMatch[0]
+    .replace(/,\s*([\}\]])/g, '$1')           // trailing commas
+    .replace(/:\s*"([^"]*)"/g, (_, v) =>      // newlines dentro de strings
+      `: "${v.replace(/\n/g, ' ').replace(/\r/g, '')}"`);
+
+  let extracted;
+  try {
+    extracted = JSON.parse(cleanJson);
+  } catch (e) {
+    throw new Error(`Falha ao interpretar resposta da IA. Tente novamente ou use o PDF original do laboratório. (${e.message})`);
+  }
 
   const numericFields = ['pH_CaCl2','pH_H2O','MO','P','K','Ca','Mg','Al','HplusAl','CTC','V','B','Zn','area'];
   const result = {};
