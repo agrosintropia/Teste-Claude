@@ -352,10 +352,21 @@ function recommend(data) {
   if (znInfo) interpretacao.Zn = { valor: Zn, ...znInfo };
   if (relCaMg !== null) interpretacao.relCaMg = { valor: parseFloat(relCaMg.toFixed(2)), adequada: relOk };
 
+  // ── Idade da análise ────────────────────────────────────────────────────────
+  let analiseDesatualizada = false;
+  if (dataAnalise) {
+    const meses = (Date.now() - new Date(dataAnalise).getTime()) / (1000 * 60 * 60 * 24 * 30.44);
+    if (meses > 12) analiseDesatualizada = true;
+  }
+
   // ── Alertas ─────────────────────────────────────────────────────────────────
   const alertas = [];
   const fruitCultures = ['cacau', 'citros', 'manga', 'abacate', 'banana'];
   const hasFruit = culturas.some(c => fruitCultures.includes(c));
+
+  if (analiseDesatualizada) {
+    alertas.push({ tipo: 'ATENÇÃO', mensagem: `ANÁLISE DE SOLO DESATUALIZADA — Data da análise: ${dataAnalise}. Dados com mais de 12 meses podem não refletir o estado atual do solo após calagem, adubações e ciclos de cultivo. Recomenda-se nova coleta antes da próxima safra (ver Seção 8).` });
+  }
 
   if (Al > 1.0 && mPct > 50) {
     alertas.push({ tipo: 'CRÍTICO', mensagem: 'TOXIDEZ DE ALUMÍNIO SEVERA — Al³⁺ > 1,0 cmolc/dm³ e m% > 50%. Corrigir com calagem antes de qualquer plantio ou adubação.' });
@@ -521,6 +532,7 @@ function recommend(data) {
     safBonuses,
     coberturaNote: COVERAGE_NOTES[cobertura] || COVERAGE_NOTES.moderada,
     proximaAnalise,
+    analiseDesatualizada,
   };
 }
 

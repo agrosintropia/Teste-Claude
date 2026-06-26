@@ -371,6 +371,67 @@ textarea:focus {
   font-size: 0.88rem;
 }
 
+/* ── Analise antiga aviso ─────────────────────────────── */
+.analise-antiga-aviso {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #856404;
+  line-height: 1.5;
+}
+.aviso-link {
+  display: inline-block;
+  margin-left: 6px;
+  color: var(--green-mid);
+  font-weight: 600;
+  text-decoration: none;
+}
+.aviso-link:hover { text-decoration: underline; }
+
+/* ── Guia técnico de coleta ───────────────────────────── */
+.card-guia {
+  border-color: var(--warn-border);
+  background: #FFFBF0;
+}
+.guia-intro {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  margin-bottom: 16px;
+}
+.guia-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.guia-item {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+.guia-item-warn {
+  border-color: #FECACA;
+  background: #FEF2F2;
+}
+.guia-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 4px;
+}
+.guia-item-warn .guia-label { color: #DC2626; }
+.guia-texto {
+  font-size: 0.82rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .guia-grid { grid-template-columns: 1fr; }
+}
+
 /* ── Multi-analise bar ────────────────────────────────── */
 #multi-analise-bar {
   display: flex;

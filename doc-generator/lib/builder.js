@@ -436,9 +436,39 @@ function sectionSAF(result) {
 // ── Next steps section ────────────────────────────────────────────────────────
 
 function sectionProximosPassos(result) {
-  return [
+  const items = [
     h1('8. PRÓXIMOS PASSOS E MONITORAMENTO'),
-    h3('Recomendação de Nova Análise de Solo:'),
+  ];
+
+  if (result.analiseDesatualizada) {
+    items.push(
+      h2('⚠️ 8.1 NOVA COLETA DE SOLO — URGENTE'),
+      p('A análise de solo utilizada neste laudo está desatualizada (mais de 12 meses). As condições do solo podem ter se alterado significativamente após calagem, adubações e ciclos de cultivo. Siga o roteiro abaixo para a nova coleta:'),
+      spacer(),
+      makeTable(
+        ['Etapa', 'Orientação técnica'],
+        [
+          ['Época ideal', 'Final da estação seca (julho–setembro na Bahia). Aguardar no mínimo 60 dias após calagem ou adubação.'],
+          ['Profundidade', '0–20 cm (horizonte superficial). Coletar também 20–40 cm se houver suspeita de impedimentos em subsuperfície.'],
+          ['Subamostras', '15–20 pontos por área homogênea (máx. 2–5 ha por amostra composta). Caminhar em zigue-zague por toda a área.'],
+          ['Utensílio', 'Trado holandês ou calador de metal limpo e seco. Não usar ferramentas enferrujadas ou com resíduos de outros solos.'],
+          ['Homogeneização', 'Misturar todas as subamostras em balde plástico limpo. Retirar ~500 g da mistura para o saco de envio.'],
+          ['Identificação', 'Etiquetar com: produtor, propriedade, talhão, profundidade e data de coleta.'],
+          ['Envio', 'Enviar ao laboratório em até 48h. Se necessário, refrigerar por no máximo 7 dias.'],
+          ['Evitar', 'Coleta sob chuva; próximo a formigueiros, cupinzeiros ou cercas; áreas de queima recente; áreas recém-adubadas.'],
+        ],
+        [2800, 6300],
+      ),
+      spacer(),
+      p('Fontes: Embrapa Solos (Manual de Métodos de Análise de Solo), CEPLAC (Boletim Técnico 202), EMATER-BA.', { italics: true, size: THEME.size.small, color: THEME.color.gray }),
+      spacer(),
+      h3('Próxima Análise Prevista:'),
+    );
+  } else {
+    items.push(h3('Recomendação de Nova Análise de Solo:'));
+  }
+
+  items.push(
     p(`Realizar nova análise de solo no período ${result.proximaAnalise}. Preferencialmente no final da estação seca, antes do início do período chuvoso.`),
     spacer(),
     h3('Monitoramento Contínuo:'),
@@ -448,7 +478,9 @@ function sectionProximosPassos(result) {
     bullet('Manter cobertura morta permanente sob as copas das culturas principais.'),
     bullet('Em SAFs novos, repetir análise de solo após 18–24 meses.'),
     spacer(),
-  ];
+  );
+
+  return items;
 }
 
 // ── Agronomist observations section ──────────────────────────────────────────
