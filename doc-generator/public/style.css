@@ -371,6 +371,33 @@ textarea:focus {
   font-size: 0.88rem;
 }
 
+/* ── Multi-analise bar ────────────────────────────────── */
+#multi-analise-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--green-bg);
+  border: 1px solid var(--green-pale);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  color: var(--green-dark);
+  font-weight: 500;
+  gap: 12px;
+}
+.multi-analise-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.btn-media, .btn-limpar {
+  padding: 5px 12px;
+  border: none; border-radius: 6px;
+  font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; transition: background 0.2s;
+}
+.btn-media  { background: var(--green-mid);  color: white; }
+.btn-media:hover  { background: var(--green-dark); }
+.btn-limpar { background: var(--gray-200); color: var(--gray-600); }
+.btn-limpar:hover { filter: brightness(0.92); }
+
 /* pulse de campos preenchidos pela IA */
 @keyframes field-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(45,106,79,0.4); }

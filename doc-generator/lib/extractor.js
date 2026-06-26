@@ -4,9 +4,9 @@ const Anthropic = require('@anthropic-ai/sdk');
 
 const PROMPT = `Você é um assistente agrônomo especializado em análise de solos tropicais brasileiros.
 
-Analise este laudo de análise de solo e extraia TODOS os valores numéricos encontrados.
+Analise este laudo de análise de solo e extraia TODOS os dados encontrados — tanto os dados de identificação do documento quanto os valores da análise química.
 
-REGRAS DE EXTRAÇÃO:
+REGRAS DE EXTRAÇÃO DOS DADOS DE SOLO:
 1. Potássio (K): se estiver em mg/dm³ (valores típicos entre 10 e 400), converta para cmolc/dm³ dividindo por 391. Se já estiver em cmolc/dm³ (valores típicos entre 0,05 e 1,5), use diretamente.
 2. Matéria Orgânica (MO): extraia o valor numérico independente da unidade (%, g/dm³, dag/kg — são equivalentes para solos tropicais com densidade ~1).
 3. V%: pode aparecer como "V%", "Sat. Bases (%)", "Saturação por Bases" ou similar.
@@ -14,8 +14,24 @@ REGRAS DE EXTRAÇÃO:
 5. Substitua vírgula por ponto decimal em todos os números (padrão brasileiro: 4,8 → 4.8).
 6. Textura: "argilosa" se mencionar argiloso, muito argiloso, ou argila > 35%. "media_arenosa" se franco-arenoso, arenoso, ou argila < 35%.
 
+REGRAS DE EXTRAÇÃO DE IDENTIFICAÇÃO:
+- cliente: nome do produtor, agricultor ou cliente — exatamente como aparece no documento
+- propriedade: nome da fazenda, sítio, propriedade ou lote — exatamente como aparece
+- municipio: município e UF (ex: "Uruçuca-BA") — use o formato "Município-UF"
+- talhao: identificação do talhão, gleba, área ou amostra (ex: "Talhão 1", "A1")
+- dataAnalise: data da coleta ou da análise — converta para formato YYYY-MM-DD (ex: 15/03/2024 → 2024-03-15)
+- area: área em hectares se mencionada — apenas o número
+
+Se um campo de identificação não estiver claramente visível no documento, retorne null para ele.
+
 Retorne APENAS um JSON válido, sem texto antes ou depois:
 {
+  "cliente": "string ou null",
+  "propriedade": "string ou null",
+  "municipio": "string ou null",
+  "talhao": "string ou null",
+  "dataAnalise": "YYYY-MM-DD ou null",
+  "area": número ou null,
   "pH_CaCl2": número ou null,
   "pH_H2O": número ou null,
   "MO": número ou null,
@@ -62,12 +78,15 @@ async function extractSoilData(buffer, mimeType) {
 
   const extracted = JSON.parse(jsonMatch[0]);
 
-  // Garantir que todos os campos numéricos são number ou undefined (não null)
-  const numericFields = ['pH_CaCl2','pH_H2O','MO','P','K','Ca','Mg','Al','HplusAl','CTC','V','B','Zn'];
+  const numericFields = ['pH_CaCl2','pH_H2O','MO','P','K','Ca','Mg','Al','HplusAl','CTC','V','B','Zn','area'];
   const result = {};
   for (const f of numericFields) {
     const v = extracted[f];
     if (v !== null && v !== undefined && !isNaN(Number(v))) result[f] = Number(v);
+  }
+  const textFields = ['cliente','propriedade','municipio','talhao','dataAnalise'];
+  for (const f of textFields) {
+    if (extracted[f]) result[f] = String(extracted[f]).trim();
   }
   if (extracted.textura) result.textura = extracted.textura;
   if (extracted.notas)   result.notas   = extracted.notas;

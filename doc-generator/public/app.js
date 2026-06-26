@@ -12,6 +12,7 @@ const extractError  = document.getElementById('extract-error');
 const extractNotes  = document.getElementById('extract-notes');
 
 let selectedFile = null;
+let analises = []; // pool de análises extraídas para cálculo de média
 
 btnBrowse.addEventListener('click', () => uploadInput.click());
 uploadInput.addEventListener('change', () => setFile(uploadInput.files[0]));
@@ -57,7 +58,9 @@ btnExtract.addEventListener('click', async () => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `Erro HTTP ${res.status}`);
 
+    prefillIdFields(data);
     prefillSoilFields(data);
+    adicionarAnalise(data);
 
     extractResult.style.display = 'block';
     if (data.notas) {
@@ -112,6 +115,73 @@ function hideExtractFeedback() {
   extractNotes.style.display  = 'none';
   extractNotes.textContent    = '';
 }
+
+/** Preenche campos de identificação com dados da IA, sem sobrescrever o que o usuário já digitou. */
+function prefillIdFields(data) {
+  const mapping = {
+    cliente:     'cliente',
+    propriedade: 'propriedade',
+    municipio:   'municipio',
+    talhao:      'talhao',
+    dataAnalise: 'dataAnalise',
+    area:        'area',
+  };
+  for (const [key, id] of Object.entries(mapping)) {
+    if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
+      const el = document.getElementById(id);
+      if (el && !el.value.trim()) {
+        el.value = data[key];
+        el.classList.remove('ai-filled');
+        void el.offsetWidth;
+        el.classList.add('ai-filled');
+      }
+    }
+  }
+}
+
+/** Adiciona análise ao pool e atualiza a barra de múltiplas análises. */
+function adicionarAnalise(data) {
+  analises.push(data);
+  const bar = document.getElementById('multi-analise-bar');
+  const count = document.getElementById('analises-count');
+  bar.style.display = 'flex';
+  count.textContent = analises.length === 1
+    ? '1 análise carregada'
+    : `${analises.length} análises carregadas — use a média para recomendação`;
+  document.getElementById('btn-media').style.display = analises.length >= 2 ? 'inline-flex' : 'none';
+}
+
+/** Calcula a média campo a campo de todas as análises acumuladas e preenche o formulário. */
+function calcularMedia() {
+  if (analises.length < 2) return;
+  const numKeys = ['pH_CaCl2','pH_H2O','MO','P','K','Ca','Mg','Al','HplusAl','CTC','V','B','Zn'];
+  const media = {};
+  for (const key of numKeys) {
+    const vals = analises.map(a => a[key]).filter(v => v !== undefined && v !== null && !isNaN(v));
+    if (vals.length > 0) media[key] = parseFloat((vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(3));
+  }
+  // Textura: usar a mais frequente
+  const texturas = analises.map(a => a.textura).filter(Boolean);
+  if (texturas.length > 0) {
+    const freq = {};
+    texturas.forEach(t => freq[t] = (freq[t] || 0) + 1);
+    media.textura = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+  }
+  media.notas = `Média calculada de ${analises.length} análises.`;
+  prefillSoilFields(media);
+  extractResult.style.display = 'block';
+  extractNotes.textContent = `ℹ️ Média de ${analises.length} análises aplicada nos campos de solo.`;
+  extractNotes.style.display = 'block';
+}
+
+/** Limpa o pool de análises. */
+function limparAnalises() {
+  analises = [];
+  document.getElementById('multi-analise-bar').style.display = 'none';
+}
+
+document.getElementById('btn-media').addEventListener('click', calcularMedia);
+document.getElementById('btn-limpar-analises').addEventListener('click', limparAnalises);
 
 // ── Geração do laudo ──────────────────────────────────────────────────────────
 
