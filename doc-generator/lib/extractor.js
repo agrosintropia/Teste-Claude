@@ -102,6 +102,13 @@ async function extractSoilData(buffer, mimeType) {
   if (extracted.textura) result.textura = extracted.textura;
   if (extracted.notas)   result.notas   = extracted.notas;
 
+  // Log what was found to help diagnose extraction failures
+  const soilKeys = ['pH_CaCl2','MO','P','K','Ca','Mg','Al'];
+  const found   = soilKeys.filter(k => result[k] !== undefined);
+  const missing = soilKeys.filter(k => result[k] === undefined);
+  console.log(`[extractor] Solo encontrado: [${found.join(', ') || 'nenhum'}] | Ausente: [${missing.join(', ') || 'nenhum'}]`);
+  if (extracted.notas) console.log(`[extractor] Notas IA: ${extracted.notas}`);
+
   return result;
 }
 

@@ -59,12 +59,20 @@ btnExtract.addEventListener('click', async () => {
     if (!res.ok) throw new Error(data.error || `Erro HTTP ${res.status}`);
 
     prefillIdFields(data);
-    prefillSoilFields(data);
+    const soilFilled = prefillSoilFields(data);
     adicionarAnalise(data);
 
     extractResult.style.display = 'block';
-    if (data.notas) {
-      extractNotes.textContent = `ℹ️ ${data.notas}`;
+
+    const noteLines = [];
+    if (soilFilled === 0) {
+      noteLines.push('⚠️ Nenhum valor de análise de solo foi encontrado no arquivo. Verifique se o documento contém uma tabela de resultados legível e tente novamente.');
+    } else if (soilFilled < 5) {
+      noteLines.push(`⚠️ Apenas ${soilFilled} campo(s) de solo preenchido(s). Confira os valores na Seção 4 e preencha os restantes manualmente.`);
+    }
+    if (data.notas) noteLines.push(`ℹ️ ${data.notas}`);
+    if (noteLines.length > 0) {
+      extractNotes.innerHTML = noteLines.join('<br>');
       extractNotes.style.display = 'block';
     }
   } catch (err) {
@@ -77,7 +85,8 @@ btnExtract.addEventListener('click', async () => {
   }
 });
 
-/** Pre-preenche os campos de análise de solo e anima os que foram preenchidos. */
+/** Pre-preenche os campos de análise de solo e anima os que foram preenchidos.
+ *  Returns the count of soil fields that were actually filled. */
 function prefillSoilFields(data) {
   const mapping = {
     pH_CaCl2: 'pH_CaCl2', pH_H2O: 'pH_H2O',
@@ -86,6 +95,7 @@ function prefillSoilFields(data) {
     HplusAl: 'HplusAl', CTC: 'CTC', V: 'V',
     B: 'B', Zn: 'Zn',
   };
+  let filled = 0;
   for (const [key, id] of Object.entries(mapping)) {
     if (data[key] !== undefined && data[key] !== null) {
       const el = document.getElementById(id);
@@ -94,6 +104,7 @@ function prefillSoilFields(data) {
         el.classList.remove('ai-filled');
         void el.offsetWidth; // reflow para reiniciar animação
         el.classList.add('ai-filled');
+        filled++;
       }
     }
   }
@@ -101,8 +112,11 @@ function prefillSoilFields(data) {
     const sel = document.getElementById('textura');
     if (sel) sel.value = data.textura;
   }
-  // rolar para a seção de solo
-  document.getElementById('pH_CaCl2')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // rolar para a seção de solo apenas se algo foi preenchido
+  if (filled > 0) {
+    document.getElementById('pH_CaCl2')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  return filled;
 }
 
 function showExtractError(msg) {
