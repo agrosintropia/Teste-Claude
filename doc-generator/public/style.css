@@ -255,6 +255,8 @@ textarea:focus {
 }
 .btn-pdf { background: var(--gray-600); }
 .btn-pdf:hover { background: var(--gray-800); }
+.btn-planilha { background: #1d6b38; }
+.btn-planilha:hover { background: #144d28; }
 
 .spinner {
   width: 18px; height: 18px;

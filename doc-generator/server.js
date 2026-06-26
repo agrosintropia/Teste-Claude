@@ -11,6 +11,7 @@ const { Packer }   = require('docx');
 
 const { recommend }       = require('./lib/recommender');
 const { buildLaudo }      = require('./lib/builder');
+const { buildPlanilha }   = require('./lib/planilha');
 const { extractSoilData } = require('./lib/extractor');
 const { salvarLaudo, listarLaudos, buscarLaudo } = require('./lib/db');
 const { docxToPdf }       = require('./lib/pdf');
@@ -99,6 +100,25 @@ app.post('/api/generate-pdf', async (req, res) => {
   } catch (err) {
     console.error('Erro ao gerar laudo PDF:', err);
     res.status(500).json({ error: err.message || 'Erro interno ao gerar o laudo em PDF.' });
+  }
+});
+
+// ── API: generate .xlsx planilha ──────────────────────────────────────────
+
+app.post('/api/generate-planilha', async (req, res) => {
+  try {
+    const result = recommend(req.body);
+    const buffer = await buildPlanilha(result, req.body);
+
+    const clienteName = (req.body.cliente || 'agrosintropia').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+    const filename = `planilha_${clienteName}_${Date.now()}.xlsx`;
+
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+  } catch (err) {
+    console.error('Erro ao gerar planilha:', err);
+    res.status(500).json({ error: err.message || 'Erro interno ao gerar a planilha.' });
   }
 });
 

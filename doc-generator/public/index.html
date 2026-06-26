@@ -250,9 +250,30 @@
       </div>
     </div>
 
-    <!-- 7. Observações do Agrônomo -->
+    <!-- 7. Dados do Projeto (Planilha) -->
     <div class="card">
-      <div class="card-title"><span class="card-num">7</span>Observações do Agrônomo</div>
+      <div class="card-title"><span class="card-num">7</span>Dados do Projeto <em class="hint" style="font-size:0.8em;font-weight:normal">(para Planilha para Projeto)</em></div>
+      <div class="grid-2">
+        <div class="field" style="grid-column:1/-1">
+          <label for="projeto_nome">Nome do Projeto</label>
+          <input type="text" id="projeto_nome" name="projeto_nome" placeholder="Ex: SAF Cacau — Talhão Norte" />
+        </div>
+        <div class="field">
+          <label for="projeto_linear">Metros Lineares de Plantio</label>
+          <input type="number" id="projeto_linear" name="projeto_linear" min="0" step="1" placeholder="Ex: 2500" />
+          <span class="hint">Total de metros lineares das linhas de plantio</span>
+        </div>
+        <div class="field">
+          <label for="projeto_area_m2">Área de Canteiros (m²)</label>
+          <input type="number" id="projeto_area_m2" name="projeto_area_m2" min="0" step="1" placeholder="Ex: 1800" />
+          <span class="hint">Área total das entrelinhas / canteiros</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Observações do Agrônomo -->
+    <div class="card">
+      <div class="card-title"><span class="card-num">8</span>Observações do Agrônomo</div>
       <div class="field">
         <label for="observacoes">Observações e considerações adicionais <em class="hint" style="display:inline">(opcional)</em></label>
         <textarea id="observacoes" name="observacoes" rows="5" placeholder="Histórico da área, observações de campo, restrições locais, disponibilidade de insumos, outras orientações ao produtor..."></textarea>
@@ -268,6 +289,10 @@
       <button type="button" class="btn-submit btn-pdf" id="btn-pdf">
         <div class="spinner" id="spinner-pdf"></div>
         <span class="btn-text" id="btn-pdf-text">📄 Gerar Laudo (.pdf)</span>
+      </button>
+      <button type="button" class="btn-submit btn-planilha" id="btn-planilha">
+        <div class="spinner" id="spinner-planilha"></div>
+        <span class="btn-text" id="btn-planilha-text">📊 Planilha para Projeto (.xlsx)</span>
       </button>
     </div>
     <div id="error-msg"></div>

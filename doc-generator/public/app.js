@@ -273,6 +273,17 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
   );
 });
 
+document.getElementById('btn-planilha').addEventListener('click', async () => {
+  await submitForm(
+    '/api/generate-planilha', 'xlsx',
+    document.getElementById('btn-planilha'),
+    document.getElementById('spinner-planilha'),
+    document.getElementById('btn-planilha-text'),
+    '📊 Planilha para Projeto (.xlsx)',
+    'xlsx'
+  );
+});
+
 function getFilenameFromResponse(response) {
   const cd = response.headers.get('Content-Disposition') || '';
   const match = cd.match(/filename="([^"]+)"/);
@@ -353,6 +364,11 @@ function collectFormData() {
     agronomo: {
       nome: getVal('agronomo_nome'),
       crea: getVal('agronomo_crea'),
+    },
+    projeto: {
+      nome:    getVal('projeto_nome'),
+      linear:  getNum('projeto_linear'),
+      area_m2: getNum('projeto_area_m2'),
     },
     saf,
     solo,
