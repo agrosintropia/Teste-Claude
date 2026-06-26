@@ -189,20 +189,12 @@ document.getElementById('btn-limpar-analises').addEventListener('click', limparA
 function verificarIdadeAnalise() {
   const val = document.getElementById('dataAnalise').value;
   const aviso = document.getElementById('aviso-analise-antiga');
-  const guia  = document.getElementById('guia-coleta');
-  if (!val) { aviso.style.display = 'none'; guia.style.display = 'none'; return; }
+  if (!val) { aviso.style.display = 'none'; return; }
   const meses = (Date.now() - new Date(val).getTime()) / (1000 * 60 * 60 * 24 * 30.44);
-  const antiga = meses > 12;
-  aviso.style.display = antiga ? 'block' : 'none';
-  guia.style.display  = antiga ? 'block' : 'none';
+  aviso.style.display = meses > 12 ? 'block' : 'none';
 }
 
 document.getElementById('dataAnalise').addEventListener('change', verificarIdadeAnalise);
-
-document.getElementById('btn-guia-coleta').addEventListener('click', (e) => {
-  e.preventDefault();
-  document.getElementById('guia-coleta').scrollIntoView({ behavior: 'smooth', block: 'start' });
-});
 
 // ── Geração do laudo ──────────────────────────────────────────────────────────
 

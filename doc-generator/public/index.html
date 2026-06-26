@@ -81,53 +81,12 @@
           <input type="date" id="dataAnalise" name="dataAnalise" required />
           <div id="aviso-analise-antiga" class="analise-antiga-aviso" style="display:none">
             ⚠️ <strong>Análise com mais de 12 meses.</strong>
-            Recomenda-se nova coleta antes da próxima safra.
-            <a href="#guia-coleta" class="aviso-link" id="btn-guia-coleta">Ver roteiro técnico ↓</a>
+            Recomenda-se nova coleta antes da próxima safra. O roteiro técnico de coleta será incluído no laudo gerado.
           </div>
         </div>
         <div class="field">
           <label for="area">Área (hectares)</label>
           <input type="number" id="area" name="area" min="0.01" step="0.1" placeholder="Ex: 5.0" />
-        </div>
-      </div>
-    </div>
-
-    <!-- Guia técnico de coleta (exibido quando análise > 12 meses) -->
-    <div id="guia-coleta" class="card card-guia" style="display:none">
-      <div class="card-title" style="border-color:#FFC107">📋 Roteiro Técnico para Nova Coleta de Solo</div>
-      <p class="guia-intro">Siga as recomendações da Embrapa e CEPLAC para garantir uma amostra representativa:</p>
-      <div class="guia-grid">
-        <div class="guia-item">
-          <div class="guia-label">🗓️ Época ideal</div>
-          <div class="guia-texto">Final da estação seca (julho–setembro na Bahia). Aguardar mínimo 60 dias após calagem ou adubação.</div>
-        </div>
-        <div class="guia-item">
-          <div class="guia-label">📏 Profundidade</div>
-          <div class="guia-texto">0–20 cm (horizonte superficial). Coletar também 20–40 cm se houver suspeita de impedimentos em subsuperfície.</div>
-        </div>
-        <div class="guia-item">
-          <div class="guia-label">🔢 Subamostras</div>
-          <div class="guia-texto">15–20 pontos por área homogênea (máx. 2–5 ha por amostra composta). Caminhar em zigue-zague por toda a área.</div>
-        </div>
-        <div class="guia-item">
-          <div class="guia-label">🛠️ Utensílio</div>
-          <div class="guia-texto">Trado holandês ou calador de metal limpo e seco. Não usar ferramentas enferrujadas ou com resíduo de outros solos.</div>
-        </div>
-        <div class="guia-item">
-          <div class="guia-label">🪣 Homogeneização</div>
-          <div class="guia-texto">Misturar todas as subamostras em balde plástico limpo. Retirar ~500 g da mistura homogeneizada para o saco de envio.</div>
-        </div>
-        <div class="guia-item">
-          <div class="guia-label">🏷️ Identificação</div>
-          <div class="guia-texto">Etiquetar com: nome do produtor, propriedade, talhão, profundidade, data de coleta e culturas presentes.</div>
-        </div>
-        <div class="guia-item">
-          <div class="guia-label">📦 Envio</div>
-          <div class="guia-texto">Enviar ao laboratório em até 48h após a coleta. Se necessário refrigerar, manter em geladeira por no máximo 7 dias.</div>
-        </div>
-        <div class="guia-item guia-item-warn">
-          <div class="guia-label">🚫 Evitar</div>
-          <div class="guia-texto">Coleta sob chuva; próximo a formigueiros, cupinzeiros ou cercas; em locais de queima recente; áreas recém-adubadas.</div>
         </div>
       </div>
     </div>
