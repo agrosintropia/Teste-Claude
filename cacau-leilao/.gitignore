@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.venv/
+venv/
+
+# Ambiente e segredos
+.env
+*.db
+*.sqlite
+
+# Node
+node_modules/
+frontend/dist/
+
+# Build
+*.log
