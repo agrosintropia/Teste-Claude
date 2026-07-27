@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: agrosintropia-laudos
+    runtime: docker
+    rootDir: doc-generator
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: PORT
+        value: 3000
+    healthCheckPath: /login
