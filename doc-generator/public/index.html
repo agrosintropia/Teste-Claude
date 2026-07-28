@@ -14,16 +14,14 @@
     <h1>Agrosintropia</h1>
     <p>Gerador de Laudos de Recomendação de Adubação Orgânica em SAFs</p>
   </div>
-  <nav class="header-nav">
-    <a href="/historico" class="nav-link">📋 Histórico</a>
-  </nav>
 </header>
 
 <main>
-  <!-- Upload de Laudo (fora do form principal) -->
+
+  <!-- Upload de Laudo -->
   <div class="card card-upload" id="card-upload">
     <div class="card-title"><span class="card-num">✦</span>Importar Laudo do Laboratório</div>
-    <p class="upload-desc">Envie o PDF ou foto do laudo de análise de solo. O sistema extrai os valores automaticamente via IA e preenche os campos abaixo.</p>
+    <p class="upload-desc">Envie o PDF ou foto do laudo de análise de solo. A IA extrai os valores automaticamente e preenche os campos abaixo.</p>
 
     <div class="drop-zone" id="drop-zone">
       <input type="file" id="upload-input" accept=".pdf,.jpg,.jpeg,.png,.webp" style="display:none" />
@@ -153,7 +151,7 @@
           <input type="number" id="pH_CaCl2" name="pH_CaCl2" required min="3" max="8" step="0.1" placeholder="Ex: 4.8" />
         </div>
         <div class="field">
-          <label for="pH_H2O">pH (H₂O) <em class="hint" style="display:inline">(opc.)</em></label>
+          <label for="pH_H2O">pH (H₂O) <em class="hint-inline">(opc.)</em></label>
           <input type="number" id="pH_H2O" name="pH_H2O" min="3" max="9" step="0.1" placeholder="Ex: 5.3" />
         </div>
         <div class="field">
@@ -161,7 +159,7 @@
           <input type="number" id="MO" name="MO" required min="0" max="20" step="0.1" placeholder="Ex: 2.1" />
         </div>
         <div class="field">
-          <label for="P">P mg/dm³ (Mehlich-1) <span class="req">*</span></label>
+          <label for="P">P mg/dm³ <span class="req">*</span></label>
           <input type="number" id="P" name="P" required min="0" step="0.1" placeholder="Ex: 6.5" />
         </div>
         <div class="field">
@@ -181,24 +179,23 @@
           <input type="number" id="Al" name="Al" required min="0" step="0.1" placeholder="Ex: 0.4" />
         </div>
         <div class="field">
-          <label for="HplusAl">H+Al cmolc/dm³ <em class="hint" style="display:inline">(opc.)</em></label>
+          <label for="HplusAl">H+Al cmolc/dm³ <em class="hint-inline">(opc.)</em></label>
           <input type="number" id="HplusAl" name="HplusAl" min="0" step="0.1" placeholder="Ex: 3.5" />
-          <span class="hint">Usado para calcular CTC</span>
         </div>
         <div class="field">
-          <label for="CTC">CTC cmolc/dm³ <em class="hint" style="display:inline">(opc.)</em></label>
+          <label for="CTC">CTC cmolc/dm³ <em class="hint-inline">(opc.)</em></label>
           <input type="number" id="CTC" name="CTC" min="0" step="0.1" placeholder="Calculado se vazio" />
         </div>
         <div class="field">
-          <label for="V">V% sat. bases <em class="hint" style="display:inline">(opc.)</em></label>
+          <label for="V">V% sat. bases <em class="hint-inline">(opc.)</em></label>
           <input type="number" id="V" name="V" min="0" max="100" step="0.1" placeholder="Calculado se vazio" />
         </div>
         <div class="field">
-          <label for="B">B mg/dm³ <em class="hint" style="display:inline">(opc.)</em></label>
+          <label for="B">B mg/dm³ <em class="hint-inline">(opc.)</em></label>
           <input type="number" id="B" name="B" min="0" step="0.01" placeholder="Ex: 0.15" />
         </div>
         <div class="field">
-          <label for="Zn">Zn mg/dm³ <em class="hint" style="display:inline">(opc.)</em></label>
+          <label for="Zn">Zn mg/dm³ <em class="hint-inline">(opc.)</em></label>
           <input type="number" id="Zn" name="Zn" min="0" step="0.1" placeholder="Ex: 0.8" />
         </div>
         <div class="field">
@@ -210,7 +207,7 @@
         </div>
       </div>
       <div class="calc-note">
-        💡 <strong>CTC</strong> e <strong>V%</strong> são calculados automaticamente se não informados (a partir de Ca + Mg + K + H+Al).
+        💡 <strong>CTC</strong> e <strong>V%</strong> são calculados automaticamente se não informados.
       </div>
     </div>
 
@@ -220,7 +217,7 @@
       <div class="grid-2">
         <div class="field">
           <label for="calcario_PRNT">PRNT do Calcário (%)</label>
-          <input type="number" id="calcario_PRNT" name="calcario_PRNT" min="1" max="130" step="1" value="85" placeholder="85" />
+          <input type="number" id="calcario_PRNT" name="calcario_PRNT" min="1" max="130" step="1" value="85" />
           <span class="hint">Poder Relativo de Neutralização Total. Default: 85%</span>
         </div>
         <div class="field">
@@ -250,9 +247,9 @@
       </div>
     </div>
 
-    <!-- 7. Dados do Projeto (Planilha) -->
+    <!-- 7. Dados do Projeto -->
     <div class="card">
-      <div class="card-title"><span class="card-num">7</span>Dados do Projeto <em class="hint" style="font-size:0.8em;font-weight:normal">(para Planilha para Projeto)</em></div>
+      <div class="card-title"><span class="card-num">7</span>Dados do Projeto <em class="hint-inline">(para Planilha para Projeto)</em></div>
       <div class="grid-2">
         <div class="field" style="grid-column:1/-1">
           <label for="projeto_nome">Nome do Projeto</label>
@@ -271,16 +268,16 @@
       </div>
     </div>
 
-    <!-- 8. Observações do Agrônomo -->
+    <!-- 8. Observações -->
     <div class="card">
       <div class="card-title"><span class="card-num">8</span>Observações do Agrônomo</div>
       <div class="field">
-        <label for="observacoes">Observações e considerações adicionais <em class="hint" style="display:inline">(opcional)</em></label>
-        <textarea id="observacoes" name="observacoes" rows="5" placeholder="Histórico da área, observações de campo, restrições locais, disponibilidade de insumos, outras orientações ao produtor..."></textarea>
+        <label for="observacoes">Observações e considerações adicionais <em class="hint-inline">(opcional)</em></label>
+        <textarea id="observacoes" name="observacoes" rows="5" placeholder="Histórico da área, observações de campo, restrições locais, disponibilidade de insumos..."></textarea>
       </div>
     </div>
 
-    <!-- Submit -->
+    <!-- Botões -->
     <div class="btn-group">
       <button type="submit" class="btn-submit" id="btn-gerar">
         <div class="spinner" id="spinner"></div>
