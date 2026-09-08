@@ -28,6 +28,8 @@ function sectionCapa(result, data) {
   const { cliente, propriedade, municipio, talhao, dataAnalise, area, culturas } = result.cliente;
   const cultNomes = {
     cafe: 'Café', cacau: 'Cacau', citros: 'Citros', manga: 'Manga', abacate: 'Abacate', banana: 'Banana',
+    pastagem_degradada: 'Pastagem Degradada (recuperação)', pastagem_normal: 'Pastagem em Manutenção',
+    milho: 'Milho', soja: 'Soja',
   };
   const cultStr = (culturas || []).map(c => cultNomes[c] || c).join(', ') || 'Não especificada';
   const dataGer = new Date().toLocaleDateString('pt-BR');

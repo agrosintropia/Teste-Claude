@@ -102,6 +102,8 @@ const V2_TARGET = {
   banana: 60,
   pastagem_degradada: 50,
   pastagem_normal: 55,
+  milho: 65,
+  soja: 65,
 };
 
 // ── Culture maintenance doses ─────────────────────────────────────────────────
@@ -219,6 +221,39 @@ const CULTURA_DOSES = {
     ],
     parcelamento: '2 aplicações anuais: início e meio do período chuvoso.',
     observacoes: 'Em pastagem já estabelecida o foco é manutenção da fertilidade e MO. O retorno do esterco dos próprios animais via pastejo rotativo pode cobrir boa parte da demanda de N e K, reduzindo necessidade de insumos externos.',
+  },
+  milho: {
+    nome: 'Milho (Zea mays L.)',
+    manutencao: [
+      { insumo: 'Cama de frango (2,5% N)', dose: '1.500–2.500 kg/ha', obs: 'Principal fonte de N; aplicar 15–30 dias antes do plantio ou na semeadura em sulco' },
+      { insumo: 'Composto orgânico (1,8% N)', dose: '2.000–4.000 kg/ha', obs: 'Melhora estrutura e CTC do solo; essencial em solos de cerrado com baixa MO' },
+      { insumo: 'Esterco bovino curtido (1,2% N)', dose: '3.000–5.000 kg/ha', obs: 'Alternativa quando não há cama de frango; volume alto compensa o menor teor de N' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '400–700 kg/ha', obs: '1ª opção P: doses mais altas em solos de cerrado pela alta fixação de P em Latossolos; Ca + Mg + Si inclusos' },
+      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '200–400 kg/ha', obs: 'Alternativa P: aplicar na linha de plantio para maior eficiência' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '30–50 L/ha (solo)', obs: '1ª opção K: K + Si; fortalece colmos e reduz acamamento; aplicar antes do plantio' },
+      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '300–500 kg/ha', obs: 'Alternativa K; fonte rápida; aplicar na linha' },
+      { insumo: 'Sulfato de zinco (20% Zn)', dose: '20–40 kg/ha (solo) ou 3 g/L (foliar)', obs: 'CRÍTICO: Zn deficiente em >80% dos solos de cerrado para milho; aplicar no sulco de plantio ou via foliar em V4' },
+      { insumo: 'Inoculante Azospirillum brasilense', dose: '100–200 mL/ha nas sementes', obs: 'Contribui com 20–40 kg N/ha/ano via FBN associativa; reduz necessidade de fontes externas de N; aplicar junto às sementes no momento do plantio' },
+    ],
+    parcelamento: '2 aplicações: ① pré-plantio (cama de frango + Yoorin + cinzas/Ekosil + ZnSO₄ incorporados ao sulco); ② cobertura em V4–V6 com composto líquido ou cama de frango diluída se necessário.',
+    observacoes: 'ATENÇÃO CERRADO: Solos de cerrado (Latossolos) têm altíssima capacidade de fixação de P — doses de Yoorin e farinha de osso devem ser 30–50% maiores que em solos de mata. Gessagem (gesso agrícola 1–2 t/ha) é recomendada para correção de Al em subsuperfície antes da calagem. Inoculação com Azospirillum é de baixo custo e alta resposta. Zn é o micronutriente mais limitante — não omitir. Crotalária ou guandu como palhada ou consorciado anteriormente ao milho reduz necessidade de N externo.',
+  },
+  soja: {
+    nome: 'Soja (Glycine max (L.) Merr.)',
+    manutencao: [
+      { insumo: 'Inoculante Bradyrhizobium japonicum / elkanii', dose: '150–200 mL/50 kg de sementes', obs: 'FUNDAMENTO do programa de N: FBN bem conduzida supre 200–300 kg N/ha/ano; NUNCA aplicar N mineral ou orgânico rico em N junto — inibe nodulação. Usar inoculante turfoso ou líquido de alta qualidade (Nitrobacter, Nitragin, Semia)' },
+      { insumo: 'Composto orgânico maturado (baixo N – alta MO)', dose: '2.000–3.000 kg/ha', obs: 'Para melhoria estrutural e CTC do solo; preferir composto maduro (C:N > 20) que não inibe nodulação' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '500–800 kg/ha', obs: '1ª opção P: P é o nutriente mais crítico para soja em cerrado; alta fixação em Latossolos exige doses elevadas; Ca + Mg + Si inclusos — não aplicar superfosfato simples em sistema orgânico' },
+      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '300–500 kg/ha', obs: 'Alternativa P: aplicar no sulco de plantio para eficiência máxima; teor de Ca ajuda na nutrição' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '40–60 L/ha (solo)', obs: '1ª opção K: K é o 2º nutriente mais exigido pela soja após P; Si fortalece contra fungos e nematoides' },
+      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '300–500 kg/ha', obs: 'Alternativa K; fonte rápida de K + Ca; atenção para não elevar pH acima de 6,5' },
+      { insumo: 'Gesso agrícola (15% S + 22% Ca)', dose: '1.000–2.000 kg/ha', obs: 'ESSENCIAL em cerrado: corrige Al³⁺ em subsuperfície, fornece Ca para raízes profundas e S para síntese de proteínas; aplicar a lanço antes do plantio; reaplicar a cada 4–6 anos' },
+      { insumo: 'Molibdato de sódio + Cobalto (Co + Mo)', dose: '1–2 g Mo + 0,4 g Co por kg de semente', obs: 'Cofatores da nitrogenase do Bradyrhizobium: sem Mo e Co adequados a FBN é ineficiente; aplicar na semente junto ao inoculante (em momentos separados)' },
+      { insumo: 'Boro (bórax – 11% B)', dose: '15–25 kg/ha (solo) ou 1,5–2 g/L (foliar em R1)', obs: 'B limita floração e enchimento de vagens; deficiência comum em cerrado; aplicar solo na base + foliar na floração (R1)' },
+      { insumo: 'Sulfato de zinco (20% Zn)', dose: '15–30 kg/ha (solo)', obs: 'Deficiência endêmica em cerrado; Zn participa da síntese de auxinas e clorofila; aplicar na base' },
+    ],
+    parcelamento: 'Aplicação única pré-plantio (Yoorin + K + gesso + B + Zn incorporados). Inoculante nas sementes no dia do plantio. Foliar B + Co + Mo em R1 (início da floração).',
+    observacoes: 'FUNDAMENTO SOJA ORGÂNICA: a Fixação Biológica de N (FBN) via Bradyrhizobium é inegociável — substituir N externo é a regra, não a exceção. Qualidade do inoculante e aplicação cuidadosa (sem sol direto, sem contato com fungicidas) são críticos. CERRADO: V% alvo de 65% com calagem é pré-condição; sem pH corrigido (5,8–6,2 em CaCl₂) e Al neutralizado, a nodulação é comprometida. Gessagem complementa a calagem na correção do perfil. Em sistemas orgânicos certificados, verificar quais fontes de P e K são permitidas pelo regulamento da certificadora.',
   },
 };
 
