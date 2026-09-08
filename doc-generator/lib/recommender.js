@@ -100,6 +100,8 @@ const V2_TARGET = {
   manga: 55,
   abacate: 60,
   banana: 60,
+  pastagem_degradada: 50,
+  pastagem_normal: 55,
 };
 
 // ── Culture maintenance doses ─────────────────────────────────────────────────
@@ -189,6 +191,34 @@ const CULTURA_DOSES = {
     ],
     parcelamento: '4–6 aplicações distribuídas no período chuvoso.',
     observacoes: 'K é o nutriente mais limitante. O palhiço da banana contribui significativamente para ciclagem de K.',
+  },
+  pastagem_degradada: {
+    nome: 'Pastagem Degradada (recuperação)',
+    manutencao: [
+      { insumo: 'Cama de frango (2,5% N)', dose: '1.500–2.000 kg/ha', obs: 'Principal fonte de N para estimular rebrota vigorosa' },
+      { insumo: 'Esterco bovino curtido', dose: '3.000–5.000 kg/ha', obs: 'Melhora estrutura do solo; essencial em solos compactados' },
+      { insumo: 'Composto orgânico (1,8% N)', dose: '2.000–3.000 kg/ha', obs: 'Alternativa quando há disponibilidade local' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '300–600 kg/ha', obs: '1ª opção P: liberação gradual; Ca + Mg + Si inclusos; favorece enraizamento profundo' },
+      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '200–400 kg/ha', obs: 'Alternativa P: aplicar antes da semeadura ou rebrota' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '30–50 L/ha (solo)', obs: '1ª opção K: K + Si; fortalece colmos e raízes; reduz acamamento' },
+      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '200–400 kg/ha', obs: 'Alternativa K; aplicar após chuva para reduzir perdas' },
+      { insumo: 'Semente de leguminosa (guandu, crotalária, stylosantes)', dose: '10–20 kg/ha', obs: 'Fixação biológica de N; adubação verde integrada à pastagem' },
+    ],
+    parcelamento: '2–3 aplicações no início e meio do período chuvoso. Priorizar calagem no período seco; adubação orgânica no início das chuvas.',
+    observacoes: 'Pastagem degradada requer antes de tudo correção do pH (calagem) e eliminação da compactação (subsolagem ou pastejo rotativo). A adubação orgânica sem correção da acidez e estrutura do solo terá resultado limitado. Incluir leguminosas forrageiras é estratégico para reduzir custos futuros de N.',
+  },
+  pastagem_normal: {
+    nome: 'Pastagem em Manutenção',
+    manutencao: [
+      { insumo: 'Esterco bovino curtido', dose: '2.000–3.000 kg/ha', obs: 'Manutenção de MO e nutrientes; principal insumo em sistemas de pastejo rotativo' },
+      { insumo: 'Cama de frango (2,5% N)', dose: '800–1.200 kg/ha', obs: 'Complemento de N; atenção ao manejo para evitar excesso de P' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '150–300 kg/ha', obs: '1ª opção P: manutenção; liberação gradual; Ca + Mg + Si inclusos' },
+      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '100–200 kg/ha', obs: 'Alternativa P: liberação lenta; boa em solos com pH em elevação' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '20–40 L/ha (solo)', obs: '1ª opção K: K + Si; melhora resistência à seca e pisoteio' },
+      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '100–200 kg/ha', obs: 'Alternativa K; insumo de baixo custo quando disponível' },
+    ],
+    parcelamento: '2 aplicações anuais: início e meio do período chuvoso.',
+    observacoes: 'Em pastagem já estabelecida o foco é manutenção da fertilidade e MO. O retorno do esterco dos próprios animais via pastejo rotativo pode cobrir boa parte da demanda de N e K, reduzindo necessidade de insumos externos.',
   },
 };
 

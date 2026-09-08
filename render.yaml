@@ -10,4 +10,4 @@ services:
         sync: false
       - key: PORT
         value: 3000
-    healthCheckPath: /login
+    healthCheckPath: /
