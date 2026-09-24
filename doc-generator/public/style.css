@@ -263,6 +263,35 @@ textarea { resize: vertical; min-height: 100px; }
   border-radius: 6px; font-size: 0.8rem; color: #856404; line-height: 1.5;
 }
 
+/* ── Cards de amostras extraídas ── */
+#amostras-list { margin-top: 14px; }
+.amostras-list-label {
+  font-size: 0.82rem; color: var(--gray-600); margin: 0 0 8px;
+}
+#amostras-cards { display: flex; flex-wrap: wrap; gap: 8px; }
+.amostra-card {
+  flex: 1 1 160px; min-width: 140px; max-width: 260px;
+  padding: 10px 14px;
+  background: var(--white); border: 2px solid var(--gray-200);
+  border-radius: var(--radius); cursor: pointer;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.amostra-card:hover { border-color: var(--green-pale); }
+.amostra-card.ativa {
+  border-color: var(--green-mid);
+  background: var(--green-card);
+  box-shadow: 0 0 0 3px rgba(45,106,79,0.12);
+}
+.amostra-card-nome {
+  font-size: 0.88rem; font-weight: 700;
+  color: var(--green-dark); margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.amostra-card-vals {
+  font-size: 0.75rem; color: var(--gray-600); line-height: 1.5;
+}
+.amostra-card.ativa .amostra-card-vals { color: var(--green-mid); }
+
 /* ── Barra de múltiplas análises ── */
 #multi-analise-bar {
   display: flex; align-items: center; justify-content: space-between;

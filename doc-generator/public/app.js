@@ -62,10 +62,14 @@ btnExtract.addEventListener('click', async () => {
     amostrasArr.forEach(a => adicionarAnalise(a));
     extractResult.style.display = 'block';
 
-    const notas = [];
+    // Show sample cards when multiple samples were found
     if (amostrasArr.length > 1) {
-      notas.push(`✅ ${amostrasArr.length} amostras identificadas: ${amostrasArr.map(a => a.id).join(', ')}. O laudo gerado conterá análise individual de cada amostra + recomendação mista ao final.`);
+      renderAmostrasCards(amostrasArr);
+    } else {
+      document.getElementById('amostras-list').style.display = 'none';
     }
+
+    const notas = [];
     if (filled === 0) {
       notas.push('⚠️ Nenhum valor de análise de solo encontrado na 1ª amostra. Verifique se o documento contém uma tabela de resultados legível.');
     } else if (filled < 5) {
@@ -150,6 +154,39 @@ function adicionarAnalise(data) {
   atualizarBarraAnalises();
 }
 
+function renderAmostrasCards(amostrasArr) {
+  const listEl   = document.getElementById('amostras-list');
+  const cardsEl  = document.getElementById('amostras-cards');
+  cardsEl.innerHTML = '';
+
+  amostrasArr.forEach((am, i) => {
+    const card = document.createElement('div');
+    card.className = 'amostra-card' + (i === 0 ? ' ativa' : '');
+
+    const fmt = v => (v !== undefined && v !== null) ? v : '—';
+    const vals = [
+      `pH ${fmt(am.pH_CaCl2)}`,
+      `P ${fmt(am.P)}`,
+      `K ${am.K !== undefined && am.K !== null ? am.K.toFixed(2) : '—'}`,
+      `V ${fmt(am.V)}%`,
+    ].join(' · ');
+
+    card.innerHTML = `
+      <div class="amostra-card-nome">${am.id || `Amostra ${i + 1}`}</div>
+      <div class="amostra-card-vals">${vals}</div>`;
+
+    card.addEventListener('click', () => {
+      cardsEl.querySelectorAll('.amostra-card').forEach(c => c.classList.remove('ativa'));
+      card.classList.add('ativa');
+      prefillSoilFields(am);
+    });
+
+    cardsEl.appendChild(card);
+  });
+
+  listEl.style.display = 'block';
+}
+
 function atualizarBarraAnalises() {
   const n = analises.length;
   document.getElementById('multi-analise-bar').style.display = n >= 1 ? 'flex' : 'none';
@@ -185,6 +222,8 @@ document.getElementById('btn-media').addEventListener('click', () => {
 document.getElementById('btn-limpar-analises').addEventListener('click', () => {
   analises = [];
   atualizarBarraAnalises();
+  document.getElementById('amostras-list').style.display = 'none';
+  document.getElementById('amostras-cards').innerHTML = '';
 });
 
 // ── Alerta de análise desatualizada ───────────────────────────────────────────
