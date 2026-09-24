@@ -359,6 +359,46 @@ function calcarioFonte(tipo) {
   return fontes[tipo] || 'Calcário';
 }
 
+// ── Dynamic P/K dose tables (Yoorin and Ekosil) ──────────────────────────────
+// null = P/K adequado — entry shown as "Não necessário" in the laudo
+// Doses calibrated by soil P/K class for each culture
+
+const DOSES_P = {
+  cafe:               { muito_baixo: '800–1.100 kg/ha', baixo: '500–800 kg/ha', medio: '300–500 kg/ha', bom: '100–200 kg/ha', alto: null },
+  cacau:              { muito_baixo: '400–600 g/planta', baixo: '250–400 g/planta', medio: '150–250 g/planta', bom: '80–130 g/planta', alto: null },
+  citros:             { muito_baixo: '800–1.100 kg/ha', baixo: '500–800 kg/ha', medio: '300–500 kg/ha', bom: '100–200 kg/ha', alto: null },
+  manga:              { muito_baixo: '600–800 g/planta', baixo: '400–600 g/planta', medio: '200–400 g/planta', bom: '100–180 g/planta', alto: null },
+  abacate:            { muito_baixo: '500–700 kg/ha', baixo: '350–500 kg/ha', medio: '200–350 kg/ha', bom: '80–150 kg/ha', alto: null },
+  banana:             { muito_baixo: '700–1.000 kg/ha', baixo: '450–700 kg/ha', medio: '300–450 kg/ha', bom: '100–200 kg/ha', alto: null },
+  pastagem_degradada: { muito_baixo: '800–1.200 kg/ha', baixo: '500–800 kg/ha', medio: '300–500 kg/ha', bom: '150–250 kg/ha', alto: null },
+  pastagem_normal:    { muito_baixo: '400–600 kg/ha',   baixo: '250–400 kg/ha', medio: '150–250 kg/ha', bom: '60–120 kg/ha',  alto: null },
+  milho:              { muito_baixo: '900–1.200 kg/ha', baixo: '600–900 kg/ha', medio: '400–600 kg/ha', bom: '150–300 kg/ha', alto: null },
+  soja:               { muito_baixo: '1.100–1.500 kg/ha', baixo: '800–1.100 kg/ha', medio: '500–800 kg/ha', bom: '200–350 kg/ha', alto: null },
+};
+
+const DOSES_K = {
+  cafe:               { muito_baixo: '70–100 L/ha (solo)', baixo: '50–70 L/ha (solo)', medio: '30–50 L/ha (solo)', bom: '15–25 L/ha (solo)', alto: null },
+  cacau:              { muito_baixo: '5–7 mL/L foliar (4–5x/ano)', baixo: '4–6 mL/L foliar (4x/ano)', medio: '3–5 mL/L foliar (3–4x/ano)', bom: '2–3 mL/L foliar (2–3x/ano)', alto: null },
+  citros:             { muito_baixo: '70–100 L/ha (solo)', baixo: '50–70 L/ha (solo)', medio: '30–50 L/ha (solo)', bom: '15–25 L/ha (solo)', alto: null },
+  manga:              { muito_baixo: '5–7 mL/L foliar (4–5x/ano)', baixo: '4–6 mL/L foliar (4x/ano)', medio: '3–5 mL/L foliar (3–4x/ano)', bom: '2–3 mL/L foliar (2x/ano)', alto: null },
+  abacate:            { muito_baixo: '70–100 L/ha (solo)', baixo: '50–70 L/ha (solo)', medio: '30–50 L/ha (solo)', bom: '15–25 L/ha (solo)', alto: null },
+  banana:             { muito_baixo: '90–120 L/ha (solo)', baixo: '65–90 L/ha (solo)', medio: '40–65 L/ha (solo)', bom: '20–35 L/ha (solo)', alto: null },
+  pastagem_degradada: { muito_baixo: '60–90 L/ha (solo)', baixo: '45–60 L/ha (solo)', medio: '30–45 L/ha (solo)', bom: '15–25 L/ha (solo)', alto: null },
+  pastagem_normal:    { muito_baixo: '50–70 L/ha (solo)', baixo: '35–50 L/ha (solo)', medio: '20–35 L/ha (solo)', bom: '10–20 L/ha (solo)', alto: null },
+  milho:              { muito_baixo: '60–90 L/ha (solo)', baixo: '45–60 L/ha (solo)', medio: '30–50 L/ha (solo)', bom: '15–25 L/ha (solo)', alto: null },
+  soja:               { muito_baixo: '80–110 L/ha (solo)', baixo: '60–80 L/ha (solo)', medio: '40–60 L/ha (solo)', bom: '20–35 L/ha (solo)', alto: null },
+};
+
+function classeToDoseKey(classe) {
+  const c = (classe || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+  if (c.startsWith('muito baixo')) return 'muito_baixo';
+  if (c.startsWith('baixo'))       return 'baixo';
+  if (c.startsWith('medio') || c.startsWith('médio')) return 'medio';
+  if (c.startsWith('bom'))         return 'bom';
+  if (c.startsWith('alto'))        return 'alto';
+  return 'medio';
+}
+
 // ── Main recommend function ───────────────────────────────────────────────────
 
 function recommend(data) {
@@ -492,9 +532,37 @@ function recommend(data) {
       modNote = `Ajuste por cobertura (${cobertura}): N ${sign}${nMod}%, K ${sign}${kMod}%.`;
     }
 
+    const pKey = classeToDoseKey(pInfo.classe);
+    const kKey = classeToDoseKey(kInfo.classe);
+
+    const manutencao = base.manutencao.map(insumo => {
+      const item = { ...insumo };
+      if (insumo.insumo.includes('Yoorin') && DOSES_P[cult]) {
+        const dose = DOSES_P[cult][pKey];
+        if (dose === null) {
+          item.dose = 'Não necessário';
+          item.obs  = `P classificado como '${pInfo.classe}' (${P} mg/dm³) — solo com P adequado, monitorar na próxima análise`;
+        } else {
+          item.dose = dose;
+          item.obs  = item.obs + ` · P ${pInfo.classe} (${P} mg/dm³) — dose calibrada pela análise`;
+        }
+      }
+      if (insumo.insumo.includes('Ekosil') && DOSES_K[cult]) {
+        const dose = DOSES_K[cult][kKey];
+        if (dose === null) {
+          item.dose = 'Não necessário';
+          item.obs  = `K classificado como '${kInfo.classe}' (${K} cmolc/dm³) — solo com K adequado, monitorar na próxima análise`;
+        } else {
+          item.dose = dose;
+          item.obs  = item.obs + ` · K ${kInfo.classe} (${K} cmolc/dm³) — dose calibrada pela análise`;
+        }
+      }
+      return item;
+    });
+
     adubacao[cult] = {
       nome: base.nome,
-      manutencao: base.manutencao,
+      manutencao,
       parcelamento: base.parcelamento,
       observacoes: base.observacoes + (modNote ? ' ' + modNote : ''),
     };
