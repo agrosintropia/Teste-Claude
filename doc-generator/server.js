@@ -8,7 +8,7 @@ const path       = require('path');
 const { Packer } = require('docx');
 
 const { recommend }       = require('./lib/recommender');
-const { buildLaudo }      = require('./lib/builder');
+const { buildLaudo, buildLaudoMulti } = require('./lib/builder');
 const { buildPlanilha }   = require('./lib/planilha');
 const { extractSoilData } = require('./lib/extractor');
 const { docxToPdf }       = require('./lib/pdf');
@@ -45,8 +45,11 @@ app.post('/api/extract', upload.single('laudo'), async (req, res) => {
 
 app.post('/api/generate', async (req, res) => {
   try {
-    const buffer = await Packer.toBuffer(buildLaudo(recommend(req.body), req.body));
-    res.setHeader('Content-Disposition', `attachment; filename="laudo_${slug(req.body.cliente)}_${Date.now()}.docx"`);
+    const isMulti = Array.isArray(req.body.amostras) && req.body.amostras.length > 1;
+    const doc = isMulti ? buildLaudoMulti(req.body) : buildLaudo(recommend(req.body), req.body);
+    const prefix = isMulti ? 'laudo_multi' : 'laudo';
+    const buffer = await Packer.toBuffer(doc);
+    res.setHeader('Content-Disposition', `attachment; filename="${prefix}_${slug(req.body.cliente)}_${Date.now()}.docx"`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     res.send(buffer);
   } catch (err) {
@@ -57,9 +60,12 @@ app.post('/api/generate', async (req, res) => {
 
 app.post('/api/generate-pdf', async (req, res) => {
   try {
-    const docx = await Packer.toBuffer(buildLaudo(recommend(req.body), req.body));
+    const isMulti = Array.isArray(req.body.amostras) && req.body.amostras.length > 1;
+    const doc = isMulti ? buildLaudoMulti(req.body) : buildLaudo(recommend(req.body), req.body);
+    const docx = await Packer.toBuffer(doc);
     const pdf  = await docxToPdf(docx);
-    res.setHeader('Content-Disposition', `attachment; filename="laudo_${slug(req.body.cliente)}_${Date.now()}.pdf"`);
+    const prefix = isMulti ? 'laudo_multi' : 'laudo';
+    res.setHeader('Content-Disposition', `attachment; filename="${prefix}_${slug(req.body.cliente)}_${Date.now()}.pdf"`);
     res.setHeader('Content-Type', 'application/pdf');
     res.send(pdf);
   } catch (err) {

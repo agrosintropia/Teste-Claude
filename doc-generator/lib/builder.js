@@ -13,6 +13,40 @@ const {
 
 const { THEME } = require('./theme');
 const { run, h1, h2, h3, p, spacer, divider, pageBreak, bullet, makeTable, makeHeader, makeFooter } = require('./helpers');
+const { recommend } = require('./recommender');
+
+// ── Dose per m² conversion ────────────────────────────────────────────────────
+// 1 kg/ha = 0.1 g/m²  |  1 L/ha = 0.1 mL/m²
+
+function dosePerM2(doseStr) {
+  if (!doseStr || !doseStr.includes('/ha')) return '—';
+  // Strip leading "solo" or "foliar" qualifiers first
+  const str = doseStr.split('(')[0].trim();   // e.g. "30–50 L/ha (solo) ou …" → "30–50 L/ha"
+  const parseN = s => parseFloat(s.replace(/\./g, ''));  // "1.200" → 1200
+  const fmt = (n, decimals) => n.toFixed(decimals).replace('.', ',');
+
+  // Range: "300–500 kg/ha" or "1.200–1.500 kg/ha"
+  const rangeRe = /([\d.]+)\s*[–-]\s*([\d.]+)\s*(kg|L|g|mL)\/ha/i;
+  const singleRe = /([\d.]+)\s*(kg|L|g|mL)\/ha/i;
+
+  const rm = str.match(rangeRe) || doseStr.match(rangeRe);
+  if (rm) {
+    const [, a, b, unit] = rm;
+    const na = parseN(a), nb = parseN(b);
+    if (/^kg$/i.test(unit)) return `${fmt(na * 0.1, 0)}–${fmt(nb * 0.1, 0)} g/m²`;
+    if (/^L$/i.test(unit))  return `${fmt(na * 0.1, 1)}–${fmt(nb * 0.1, 1)} mL/m²`;
+    if (/^g$/i.test(unit))  return `${fmt(na * 0.1, 2)}–${fmt(nb * 0.1, 2)} mg/m²`;
+  }
+  const sm = str.match(singleRe) || doseStr.match(singleRe);
+  if (sm) {
+    const [, a, unit] = sm;
+    const na = parseN(a);
+    if (/^kg$/i.test(unit)) return `${fmt(na * 0.1, 0)} g/m²`;
+    if (/^L$/i.test(unit))  return `${fmt(na * 0.1, 1)} mL/m²`;
+    if (/^g$/i.test(unit))  return `${fmt(na * 0.1, 2)} mg/m²`;
+  }
+  return '—';
+}
 
 // ── Color shading for interpretation rows ─────────────────────────────────────
 
@@ -277,9 +311,9 @@ function sectionAdubacao(result) {
       items.push(spacer());
       items.push(
         makeTable(
-          ['Insumo', 'Dose por hectare', 'Observação'],
-          cult.manutencao.map(m => [m.insumo, m.dose, m.obs || '']),
-          [3400, 2200, 3500],
+          ['Insumo', 'Por hectare', 'Por m²', 'Observação'],
+          cult.manutencao.map(m => [m.insumo, m.dose, dosePerM2(m.dose), m.obs || '']),
+          [2900, 1700, 1200, 3300],
         )
       );
       items.push(spacer());
@@ -601,4 +635,122 @@ function buildLaudo(result, data) {
   });
 }
 
-module.exports = { buildLaudo };
+// ── Multi-sample helpers ──────────────────────────────────────────────────────
+
+function computeMediaAmostras(amostras) {
+  const numKeys = ['pH_CaCl2','pH_H2O','MO','P','K','Ca','Mg','Al','HplusAl','CTC','V','B','Zn'];
+  const media = {};
+  for (const key of numKeys) {
+    const vals = amostras.map(a => a[key]).filter(v => v != null && !isNaN(Number(v)));
+    if (vals.length) media[key] = parseFloat((vals.reduce((s, v) => s + Number(v), 0) / vals.length).toFixed(3));
+  }
+  const texturas = amostras.map(a => a.textura).filter(Boolean);
+  if (texturas.length) {
+    const freq = {};
+    texturas.forEach(t => freq[t] = (freq[t] || 0) + 1);
+    media.textura = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+  }
+  return media;
+}
+
+function sectionAmostra(amostra, idx, baseData) {
+  const sampleData = { ...baseData, solo: amostra, talhao: amostra.id || `Amostra ${idx + 1}` };
+  const result = recommend(sampleData);
+  return [
+    new Paragraph({
+      style: 'Heading1',
+      spacing: { before: idx > 0 ? 480 : 240, after: 120 },
+      children: [run(`AMOSTRA ${idx + 1} — ${amostra.id || `Talhão ${idx + 1}`}`, { bold: true, size: THEME.size.h1, color: THEME.color.dark })],
+    }),
+    ...sectionInterpretacao(result),
+    ...sectionAlertas(result),
+    ...sectionCalagem(result),
+    ...sectionAdubacao(result),
+    pageBreak(),
+  ];
+}
+
+// ── Multi-sample document builder ─────────────────────────────────────────────
+
+function buildLaudoMulti(data) {
+  const { amostras } = data;
+  const { cliente, propriedade, municipio } = data;
+  const headerTitle = `Laudo Multi-Amostras${propriedade ? ` — ${propriedade}` : ''}`;
+
+  // Individual sections
+  const sampleSections = amostras.flatMap((am, i) => sectionAmostra(am, i, data));
+
+  // Average section
+  const mediaSolo  = computeMediaAmostras(amostras);
+  const mediaData  = { ...data, solo: mediaSolo, talhao: `Média de ${amostras.length} amostras` };
+  const mediaResult = recommend(mediaData);
+
+  const mediaSection = [
+    new Paragraph({
+      style: 'Heading1',
+      spacing: { before: 240, after: 120 },
+      shading: { fill: THEME.color.rowEven || 'F0FAF4', type: ShadingType.CLEAR },
+      children: [run(`RECOMENDAÇÃO MISTA — MÉDIA DAS ${amostras.length} AMOSTRAS`, { bold: true, size: THEME.size.h1, color: THEME.color.dark })],
+    }),
+    p(`Esta seção apresenta a recomendação consolidada calculada sobre a média aritmética dos ${amostras.length} conjuntos de dados de solo. Utilize-a como referência para programas de adubação de área uniforme quando não for viável manejar cada talhão individualmente.`),
+    spacer(),
+    ...sectionInterpretacao(mediaResult),
+    ...sectionAlertas(mediaResult),
+    ...sectionCalagem(mediaResult),
+    ...sectionAdubacao(mediaResult),
+    ...sectionMicro(mediaResult),
+    ...sectionBiofertilizantes(mediaResult),
+    ...sectionAdubacaoVerde(mediaResult),
+    ...sectionSAF(mediaResult),
+    ...sectionProximosPassos(mediaResult),
+    ...sectionObservacoes(data),
+    ...sectionAssinatura(data),
+  ];
+
+  const docStyles = {
+    default: { document: { run: { font: THEME.font, size: THEME.size.body } } },
+    paragraphStyles: [
+      { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+        run: { size: THEME.size.h1, bold: true, font: THEME.font, color: THEME.color.dark },
+        paragraph: { spacing: { before: 360, after: 120 }, outlineLevel: 0 } },
+      { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+        run: { size: THEME.size.h2, bold: true, font: THEME.font, color: THEME.color.mid },
+        paragraph: { spacing: { before: 240, after: 100 }, outlineLevel: 1 } },
+    ],
+  };
+
+  const numbering = {
+    config: [{ reference: 'bullets', levels: [{ level: 0, format: LevelFormat.BULLET, text: '•', alignment: AlignmentType.LEFT,
+      style: { paragraph: { indent: { left: 540, hanging: 360 } } } }] }],
+  };
+
+  return new Document({
+    styles: docStyles,
+    numbering,
+    sections: [{
+      properties: {
+        page: {
+          size: { width: 11906, height: 16838 },
+          margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 },
+          pageNumbers: { start: 1, formatType: NumberFormat.DECIMAL },
+        },
+      },
+      headers: { default: makeHeader(headerTitle) },
+      footers: { default: makeFooter() },
+      children: [
+        ...sectionCapa({
+          cliente: {
+            cliente: data.cliente, propriedade: data.propriedade, municipio: data.municipio,
+            talhao: `${amostras.length} amostras`, dataAnalise: data.dataAnalise,
+            area: data.area, culturas: data.culturas,
+          }
+        }, data),
+        ...sectionAviso(),
+        ...sampleSections,
+        ...mediaSection,
+      ],
+    }],
+  });
+}
+
+module.exports = { buildLaudo, buildLaudoMulti };

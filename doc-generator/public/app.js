@@ -53,18 +53,26 @@ btnExtract.addEventListener('click', async () => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `Erro HTTP ${res.status}`);
 
-    prefillIdFields(data);
-    const filled = prefillSoilFields(data);
-    adicionarAnalise(data);
+    // New format: { amostras: [...], identificacao: {...} }
+    const amostrasArr = data.amostras || [data];
+    const idData      = data.identificacao || data;
+
+    prefillIdFields(idData);
+    const filled = prefillSoilFields(amostrasArr[0]);
+    amostrasArr.forEach(a => adicionarAnalise(a));
     extractResult.style.display = 'block';
 
     const notas = [];
-    if (filled === 0) {
-      notas.push('⚠️ Nenhum valor de análise de solo encontrado. Verifique se o documento contém uma tabela de resultados legível.');
-    } else if (filled < 5) {
-      notas.push(`⚠️ Apenas ${filled} campo(s) preenchido(s). Confira os valores na Seção 4 e preencha os restantes manualmente.`);
+    if (amostrasArr.length > 1) {
+      notas.push(`✅ ${amostrasArr.length} amostras identificadas: ${amostrasArr.map(a => a.id).join(', ')}. O laudo gerado conterá análise individual de cada amostra + recomendação mista ao final.`);
     }
-    if (data.notas) notas.push(`ℹ️ ${data.notas}`);
+    if (filled === 0) {
+      notas.push('⚠️ Nenhum valor de análise de solo encontrado na 1ª amostra. Verifique se o documento contém uma tabela de resultados legível.');
+    } else if (filled < 5) {
+      notas.push(`⚠️ Apenas ${filled} campo(s) preenchido(s) na 1ª amostra. Confira os valores na Seção 4.`);
+    }
+    const allNotas = amostrasArr.map(a => a.notas).filter(Boolean);
+    if (allNotas.length) notas.push(`ℹ️ ${allNotas[0]}`);
     if (notas.length) {
       extractNotes.innerHTML = notas.join('<br>');
       extractNotes.style.display = 'block';
@@ -139,11 +147,19 @@ function flashFill(el) {
 
 function adicionarAnalise(data) {
   analises.push(data);
-  document.getElementById('multi-analise-bar').style.display = 'flex';
-  document.getElementById('analises-count').textContent = analises.length === 1
-    ? '1 análise carregada'
-    : `${analises.length} análises carregadas — use a média para recomendação`;
-  document.getElementById('btn-media').style.display = analises.length >= 2 ? 'inline-flex' : 'none';
+  atualizarBarraAnalises();
+}
+
+function atualizarBarraAnalises() {
+  const n = analises.length;
+  document.getElementById('multi-analise-bar').style.display = n >= 1 ? 'flex' : 'none';
+  if (n === 1) {
+    document.getElementById('analises-count').textContent = '1 análise carregada';
+  } else {
+    document.getElementById('analises-count').textContent =
+      `${n} amostras — o laudo gerado incluirá análise individual de cada uma + recomendação mista`;
+  }
+  document.getElementById('btn-media').style.display = n >= 2 ? 'inline-flex' : 'none';
 }
 
 document.getElementById('btn-media').addEventListener('click', () => {
@@ -168,7 +184,7 @@ document.getElementById('btn-media').addEventListener('click', () => {
 
 document.getElementById('btn-limpar-analises').addEventListener('click', () => {
   analises = [];
-  document.getElementById('multi-analise-bar').style.display = 'none';
+  atualizarBarraAnalises();
 });
 
 // ── Alerta de análise desatualizada ───────────────────────────────────────────
@@ -208,7 +224,7 @@ function collectFormData() {
     if (v !== null) solo[key] = v;
   }
 
-  return {
+  const base = {
     cliente:     getVal('cliente'),
     propriedade: getVal('propriedade'),
     municipio:   getVal('municipio'),
@@ -239,6 +255,11 @@ function collectFormData() {
       tipo: getVal('calcario_tipo') || 'dolomitico',
     },
   };
+
+  // Include all extracted samples when multiple are available
+  if (analises.length > 1) base.amostras = analises;
+
+  return base;
 }
 
 function validateData(data) {
