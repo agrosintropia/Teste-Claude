@@ -4,28 +4,37 @@ const Anthropic = require('@anthropic-ai/sdk');
 
 const PROMPT = `Você é um assistente agrônomo especializado em análise de solos tropicais brasileiros.
 
-Analise este documento e extraia TODAS as amostras de solo presentes.
-Laudos de laboratório frequentemente contêm múltiplas amostras na mesma página ou em páginas seguintes (Talhão 1, Talhão 2, A1, A2, Gleba A, Gleba B, etc.).
+PASSO 1 — CONTE AS AMOSTRAS ANTES DE EXTRAIR:
+Observe o documento com atenção. Laudos de laboratório brasileiros apresentam múltiplas amostras de diversas formas:
+- Linhas ou colunas separadas na mesma tabela (cada coluna = uma amostra)
+- Tabelas repetidas em blocos verticais (cada bloco = uma amostra)
+- Seções nomeadas: "Talhão 1 / Talhão 2", "A1 / A2 / A3", "Gleba A / Gleba B", "Ponto 1 / Ponto 2", "Amostra 01 / Amostra 02", etc.
+- Páginas separadas do mesmo laudo
 
-IMPORTANTE: Identifique e extraia CADA amostra individualmente. Não combine amostras. Não extraia apenas a primeira.
+Antes de extrair, mentalmente conte: "Quantas amostras distintas existem neste documento?" Cada conjunto independente de valores de pH, P, K, Ca, Mg, Al é uma amostra separada. NUNCA retorne menos amostras do que realmente existem no documento.
+
+PASSO 2 — EXTRAIA CADA AMOSTRA INDIVIDUALMENTE:
+Para cada amostra identificada no Passo 1, preencha um objeto no array "amostras".
+- NÃO combine amostras. NÃO extraia apenas a primeira. NÃO omita amostras por serem semelhantes.
+- Se uma coluna de identificação mostrar "T1, T2, T3", extraia três objetos separados.
 
 REGRAS DE EXTRAÇÃO DOS DADOS DE SOLO (aplicar em cada amostra):
-1. Potássio (K): se estiver em mg/dm³ (valores típicos entre 10 e 400), converta para cmolc/dm³ dividindo por 391. Se já estiver em cmolc/dm³ (valores típicos entre 0,05 e 1,5), use diretamente.
-2. Matéria Orgânica (MO): extraia o valor numérico independente da unidade (%, g/dm³, dag/kg — são equivalentes para solos tropicais com densidade ~1).
-3. V%: pode aparecer como "V%", "Sat. Bases (%)", "Saturação por Bases" ou similar.
+1. Potássio (K): se em mg/dm³ (valores entre 10 e 400), divida por 391 para obter cmolc/dm³. Se já em cmolc/dm³ (entre 0,05 e 1,5), use diretamente.
+2. Matéria Orgânica (MO): extraia o valor numérico (%, g/dm³ e dag/kg são equivalentes).
+3. V%: pode aparecer como "V%", "Sat. Bases (%)" ou "Saturação por Bases".
 4. H+Al: pode aparecer como "H+Al", "Acidez Potencial" ou "Tampão SMP".
-5. Substitua vírgula por ponto decimal em todos os números (padrão brasileiro: 4,8 → 4.8).
-6. Textura: "argilosa" se mencionar argiloso, muito argiloso, ou argila > 35%. "media_arenosa" se franco-arenoso, arenoso, ou argila < 35%.
-7. id da amostra: use o identificador mais específico encontrado (talhão, gleba, número de amostra, local de coleta). Se não houver, use "Amostra 1", "Amostra 2", etc.
+5. Substitua vírgula por ponto decimal (4,8 → 4.8).
+6. Textura: "argilosa" se argila > 35% ou mencionado "argiloso/muito argiloso". "media_arenosa" caso contrário.
+7. id: use o identificador mais específico (talhão, gleba, ponto, número). Se não houver, use "Amostra 1", "Amostra 2", etc.
 
-REGRAS DE EXTRAÇÃO DE IDENTIFICAÇÃO (dados gerais do documento, não por amostra):
-- cliente: nome do produtor, agricultor ou cliente — exatamente como aparece
+REGRAS DE EXTRAÇÃO DE IDENTIFICAÇÃO (dados gerais, extraídos uma única vez):
+- cliente: nome do produtor/agricultor/cliente exatamente como aparece
 - propriedade: nome da fazenda, sítio ou propriedade
 - municipio: município e UF no formato "Município-UF"
-- dataAnalise: data da coleta ou análise — converta para YYYY-MM-DD
+- dataAnalise: data da coleta ou análise no formato YYYY-MM-DD
 - area: área total em hectares se mencionada
 
-Retorne APENAS um JSON válido neste formato:
+Retorne APENAS um JSON válido neste formato (sem texto antes ou depois):
 {
   "identificacao": {
     "cliente": "string ou null",
@@ -51,12 +60,12 @@ Retorne APENAS um JSON válido neste formato:
       "B": número ou null,
       "Zn": número ou null,
       "textura": "argilosa" ou "media_arenosa" ou null,
-      "notas": "conversões realizadas e campos não encontrados"
+      "notas": "conversões e campos não encontrados"
     }
   ]
 }
 
-Se houver apenas uma amostra, retorne-a como array de um elemento.`;
+LEMBRETE FINAL: o array "amostras" DEVE conter um objeto por amostra encontrada no documento. Se houver 3 talhões, retorne 3 objetos. Se houver apenas 1 amostra, retorne array com 1 objeto.`;
 
 const NUM_FIELDS = ['pH_CaCl2','pH_H2O','MO','P','K','Ca','Mg','Al','HplusAl','CTC','V','B','Zn'];
 const ID_FIELDS  = ['cliente','propriedade','municipio','dataAnalise'];
@@ -101,7 +110,7 @@ async function extractSoilData(buffer, mimeType) {
 
   const message = await client.messages.create({
     model:      'claude-haiku-4-5-20251001',
-    max_tokens: 4096,
+    max_tokens: 8000,
     messages:   [{ role: 'user', content: [contentBlock, { type: 'text', text: PROMPT }] }],
   });
 
