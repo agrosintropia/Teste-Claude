@@ -104,6 +104,7 @@ const V2_TARGET = {
   pastagem_normal: 55,
   milho: 65,
   soja: 65,
+  frutifera_tropical: 60,
 };
 
 // ── Culture maintenance doses ─────────────────────────────────────────────────
@@ -193,6 +194,22 @@ const CULTURA_DOSES = {
     ],
     parcelamento: '4–6 aplicações distribuídas no período chuvoso.',
     observacoes: 'K é o nutriente mais limitante. O palhiço da banana contribui significativamente para ciclagem de K.',
+  },
+  frutifera_tropical: {
+    nome: 'Frutíferas Tropicais — Recomendação Geral (Solos Tropicais)',
+    manutencao: [
+      { insumo: 'Cama de frango (2,5% N)', dose: '2.000–4.000 kg/ha', obs: 'Principal fonte de N; parcelar em 2–3 aplicações no período chuvoso; aplicar sob a copa' },
+      { insumo: 'Composto orgânico maturado (1,8–2% N)', dose: '2.000–3.000 kg/ha', obs: 'Complementar cama de frango; melhora estrutura e CTC do solo' },
+      { insumo: 'Torta de mamona (4,5% N)', dose: '300–500 kg/ha', obs: 'Opção concentrada de N; ação nematicida; usar onde disponível' },
+      { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '250–450 kg/ha', obs: '1ª opção P: fornece P + Ca + Mg + Si + micronutrientes; liberação gradual; dose ajustada pela classificação do P no solo' },
+      { insumo: 'Farinha de osso (20% P₂O₅)', dose: '150–300 kg/ha', obs: 'Alternativa P: liberação lenta; aplicar na cova no plantio e em cobertura anualmente' },
+      { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '140–260 kg/ha', obs: '1ª opção K: fortalece parede celular; reduz pressão fúngica e de insetos; dose ajustada pelo K do solo' },
+      { insumo: 'Cinzas vegetais (8% K₂O)', dose: '150–300 kg/ha', obs: 'Alternativa K: fonte rápida; não elevar pH acima de 6,0 em frutíferas sensíveis' },
+      { insumo: 'Boro (bórax 0,2%) — foliar', dose: '3–4 pulverizações/ano', obs: 'Essencial para floração e frutificação; aplicar no início da floração' },
+      { insumo: 'Zinco (ZnSO₄ 0,3%) — foliar', dose: '2–3 pulverizações/ano', obs: 'Durante desenvolvimento e enchimento dos frutos' },
+    ],
+    parcelamento: '2–3 aplicações no período chuvoso. Matéria orgânica (cama de frango + composto) no início das chuvas; Yoorin e Ekosil a lanço ou em cobertura na projeção da copa; foliares (B e Zn) na floração e frutificação.',
+    observacoes: 'Recomendação média para frutíferas tropicais em solos do Cerrado e Mata Atlântica. As doses de Yoorin (P) e Ekosil (K) são automaticamente calibradas pelo nível de P e K do solo da análise. Para culturas específicas, selecione-as individualmente para recomendações mais detalhadas.',
   },
   pastagem_degradada: {
     nome: 'Pastagem Degradada (recuperação)',
@@ -374,6 +391,7 @@ const DOSES_P = {
   pastagem_normal:    { muito_baixo: '400–600 kg/ha',   baixo: '250–400 kg/ha', medio: '150–250 kg/ha', bom: '60–120 kg/ha',  alto: null },
   milho:              { muito_baixo: '900–1.200 kg/ha', baixo: '600–900 kg/ha', medio: '400–600 kg/ha', bom: '150–300 kg/ha', alto: null },
   soja:               { muito_baixo: '1.100–1.500 kg/ha', baixo: '800–1.100 kg/ha', medio: '500–800 kg/ha', bom: '200–350 kg/ha', alto: null },
+  frutifera_tropical: { muito_baixo: '700–1.000 kg/ha',  baixo: '400–600 kg/ha',  medio: '250–400 kg/ha', bom: '80–150 kg/ha',  alto: null },
 };
 
 const DOSES_K = {
@@ -387,6 +405,7 @@ const DOSES_K = {
   pastagem_normal:    { muito_baixo: '250–400 kg/ha', baixo: '160–250 kg/ha', medio: '90–160 kg/ha',  bom: '40–80 kg/ha',  alto: null },
   milho:              { muito_baixo: '400–600 kg/ha', baixo: '280–400 kg/ha', medio: '160–280 kg/ha', bom: '60–120 kg/ha', alto: null },
   soja:               { muito_baixo: '500–700 kg/ha', baixo: '350–500 kg/ha', medio: '200–350 kg/ha', bom: '80–150 kg/ha', alto: null },
+  frutifera_tropical: { muito_baixo: '350–550 kg/ha', baixo: '250–400 kg/ha', medio: '140–260 kg/ha', bom: '50–120 kg/ha', alto: null },
 };
 
 function classeToDoseKey(classe) {
@@ -401,13 +420,11 @@ function classeToDoseKey(classe) {
 
 // ── Main recommend function ───────────────────────────────────────────────────
 
-const FRUTAS_TROPICAIS_DEFAULT = ['cafe', 'cacau', 'citros', 'manga', 'abacate', 'banana'];
-
 function recommend(data) {
   let { cliente, propriedade, municipio, talhao, dataAnalise, area, culturas = [], cobertura = 'moderada', saf = {}, solo = {}, calcario = {} } = data;
 
-  // Quando nenhuma cultura é selecionada, gerar recomendações para as principais frutíferas tropicais
-  if (culturas.length === 0) culturas = FRUTAS_TROPICAIS_DEFAULT;
+  // Quando nenhuma cultura é selecionada, gerar recomendação média para frutíferas tropicais
+  if (culturas.length === 0) culturas = ['frutifera_tropical'];
 
   // ── Derived values ──────────────────────────────────────────────────────────
   const Ca = parseFloat(solo.Ca) || 0;
