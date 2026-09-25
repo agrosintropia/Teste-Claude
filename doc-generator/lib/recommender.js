@@ -401,8 +401,13 @@ function classeToDoseKey(classe) {
 
 // ── Main recommend function ───────────────────────────────────────────────────
 
+const FRUTAS_TROPICAIS_DEFAULT = ['cafe', 'cacau', 'citros', 'manga', 'abacate', 'banana'];
+
 function recommend(data) {
-  const { cliente, propriedade, municipio, talhao, dataAnalise, area, culturas = [], cobertura = 'moderada', saf = {}, solo = {}, calcario = {} } = data;
+  let { cliente, propriedade, municipio, talhao, dataAnalise, area, culturas = [], cobertura = 'moderada', saf = {}, solo = {}, calcario = {} } = data;
+
+  // Quando nenhuma cultura é selecionada, gerar recomendações para as principais frutíferas tropicais
+  if (culturas.length === 0) culturas = FRUTAS_TROPICAIS_DEFAULT;
 
   // ── Derived values ──────────────────────────────────────────────────────────
   const Ca = parseFloat(solo.Ca) || 0;
