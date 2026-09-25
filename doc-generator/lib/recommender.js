@@ -114,7 +114,7 @@ const CULTURA_DOSES = {
   cafe: {
     nome: 'Café (Coffea arabica / Coffea canephora)',
     manutencao: [
-      { insumo: 'Cama de frango (2,5% N)', dose: '1.200–1.500 kg/ha', obs: 'Principal fonte de N' },
+      { insumo: 'Cama de frango (2,5% N)', dose: '3.000–5.000 kg/ha', obs: 'Principal fonte de N; dose em 2–3 parcelas no período chuvoso' },
       { insumo: 'Esterco bovino curtido (1,5% N)', dose: '2.500–3.000 kg/ha', obs: 'Alternativa regional' },
       { insumo: 'Composto orgânico (1,8% N)', dose: '2.000–2.500 kg/ha', obs: 'Melhora estrutura do solo' },
       { insumo: 'Torta de mamona (4,5% N)', dose: '500–700 kg/ha', obs: 'Nematicida; ótimo para N' },
@@ -130,7 +130,7 @@ const CULTURA_DOSES = {
     nome: 'Cacau (Theobroma cacao L.)',
     manutencao: [
       { insumo: 'Composto orgânico/esterco curtido', dose: '8–15 kg/planta/ano', obs: 'Base do programa de adubação' },
-      { insumo: 'Cama de frango', dose: '800–1.200 kg/ha', obs: 'Rica em N e P' },
+      { insumo: 'Cama de frango (2,5% N)', dose: '2.000–4.000 kg/ha', obs: 'Principal fonte de N; aplicar na projeção da copa' },
       { insumo: 'Torta de cacau (subproduto)', dose: '500–800 kg/ha', obs: 'Insumo local; rica em K' },
       { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '150–300 g/planta/ano', obs: '1ª opção P: P + Ca + Mg + Si + micronutrientes; liberação gradual' },
       { insumo: 'Farinha de osso (20% P₂O₅)', dose: '150–250 g/planta', obs: 'Alternativa P: liberação lenta' },
@@ -143,7 +143,7 @@ const CULTURA_DOSES = {
   citros: {
     nome: 'Citros (Citrus spp. — Laranja, Limão, Tangerina)',
     manutencao: [
-      { insumo: 'Cama de frango (3% N)', dose: '1.500–2.000 kg/ha', obs: 'Principal fonte; dividir em 3 aplicações' },
+      { insumo: 'Cama de frango (3% N)', dose: '3.000–5.000 kg/ha', obs: 'Principal fonte de N; dividir em 3 aplicações no período chuvoso' },
       { insumo: 'Composto orgânico (2% N)', dose: '2.000–3.000 kg/ha', obs: 'Complementar; melhora estrutura' },
       { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '300–500 kg/ha', obs: '1ª opção P: P + Ca + Mg + Si + micronutrientes; liberação gradual' },
       { insumo: 'Farinha de osso (20% P₂O₅)', dose: '150–200 kg/ha', obs: 'Alternativa P: aplicar na cova e anualmente' },
@@ -157,7 +157,7 @@ const CULTURA_DOSES = {
   manga: {
     nome: 'Manga (Mangifera indica L.)',
     manutencao: [
-      { insumo: 'Cama de frango', dose: '10–20 kg/planta/ano', obs: 'Dividir pré-floração e pós-colheita' },
+      { insumo: 'Cama de frango (2,5% N)', dose: '20–40 kg/planta/ano', obs: 'Dividir pré-floração e pós-colheita; aplicar sob copa sem contato com caule' },
       { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '200–400 g/planta/ano', obs: '1ª opção P: liberação gradual; Ca + Mg + Si inclusos' },
       { insumo: 'Farinha de osso', dose: '200–300 g/planta/ano', obs: 'Alternativa P: 60 dias antes da floração' },
       { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '120–200 kg/ha', obs: '1ª opção K: K + Si; reduz antracnose e ataque de trips' },
@@ -184,7 +184,7 @@ const CULTURA_DOSES = {
   banana: {
     nome: 'Banana (Musa spp.)',
     manutencao: [
-      { insumo: 'Cama de frango', dose: '1.200–1.800 kg/ha/ano', obs: 'Fonte principal de N' },
+      { insumo: 'Cama de frango (2,5% N)', dose: '4.000–6.000 kg/ha/ano', obs: 'Fonte principal de N; banana tem altíssima exigência — parcelar em 4–6 aplicações' },
       { insumo: 'Composto orgânico', dose: '3.000–5.000 kg/ha/ano', obs: 'Manutenção da MO e estrutura' },
       { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '200–350 kg/ha', obs: '1ª opção K: K + Si; reduz sigatoka e fraqueza de engaço' },
       { insumo: 'Cinzas vegetais (K₂O)', dose: '300–500 kg/ha', obs: 'Alternativa K; nutriente mais crítico para banana' },
@@ -197,7 +197,7 @@ const CULTURA_DOSES = {
   pastagem_degradada: {
     nome: 'Pastagem Degradada (recuperação)',
     manutencao: [
-      { insumo: 'Cama de frango (2,5% N)', dose: '1.500–2.000 kg/ha', obs: 'Principal fonte de N para estimular rebrota vigorosa' },
+      { insumo: 'Cama de frango (2,5% N)', dose: '3.000–5.000 kg/ha', obs: 'Principal fonte de N para estimular rebrota vigorosa; aplicar no início das chuvas' },
       { insumo: 'Esterco bovino curtido', dose: '3.000–5.000 kg/ha', obs: 'Melhora estrutura do solo; essencial em solos compactados' },
       { insumo: 'Composto orgânico (1,8% N)', dose: '2.000–3.000 kg/ha', obs: 'Alternativa quando há disponibilidade local' },
       { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '300–600 kg/ha', obs: '1ª opção P: liberação gradual; Ca + Mg + Si inclusos; favorece enraizamento profundo' },
@@ -213,7 +213,7 @@ const CULTURA_DOSES = {
     nome: 'Pastagem em Manutenção',
     manutencao: [
       { insumo: 'Esterco bovino curtido', dose: '2.000–3.000 kg/ha', obs: 'Manutenção de MO e nutrientes; principal insumo em sistemas de pastejo rotativo' },
-      { insumo: 'Cama de frango (2,5% N)', dose: '800–1.200 kg/ha', obs: 'Complemento de N; atenção ao manejo para evitar excesso de P' },
+      { insumo: 'Cama de frango (2,5% N)', dose: '1.500–3.000 kg/ha', obs: 'Complemento de N; em pastagem estabelecida parcelar em 2 aplicações; atenção ao excesso de P' },
       { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '150–300 kg/ha', obs: '1ª opção P: manutenção; liberação gradual; Ca + Mg + Si inclusos' },
       { insumo: 'Farinha de osso (20% P₂O₅)', dose: '100–200 kg/ha', obs: 'Alternativa P: liberação lenta; boa em solos com pH em elevação' },
       { insumo: 'Ekosil (silicato de K – 14% K₂O + Si)', dose: '90–160 kg/ha', obs: '1ª opção K: K + Si; melhora resistência à seca e pisoteio' },
@@ -225,7 +225,7 @@ const CULTURA_DOSES = {
   milho: {
     nome: 'Milho (Zea mays L.)',
     manutencao: [
-      { insumo: 'Cama de frango (2,5% N)', dose: '1.500–2.500 kg/ha', obs: 'Principal fonte de N; aplicar 15–30 dias antes do plantio ou na semeadura em sulco' },
+      { insumo: 'Cama de frango (2,5% N)', dose: '3.000–5.000 kg/ha', obs: 'Principal fonte de N; aplicar 15–30 dias antes do plantio ou incorporado no sulco na semeadura' },
       { insumo: 'Composto orgânico (1,8% N)', dose: '2.000–4.000 kg/ha', obs: 'Melhora estrutura e CTC do solo; essencial em solos de cerrado com baixa MO' },
       { insumo: 'Esterco bovino curtido (1,2% N)', dose: '3.000–5.000 kg/ha', obs: 'Alternativa quando não há cama de frango; volume alto compensa o menor teor de N' },
       { insumo: 'Yoorin Master (termofosfato – 18% P₂O₅)', dose: '400–700 kg/ha', obs: '1ª opção P: doses mais altas em solos de cerrado pela alta fixação de P em Latossolos; Ca + Mg + Si inclusos' },

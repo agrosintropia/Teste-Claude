@@ -5,14 +5,20 @@
  * Assembles a personalized .docx laudo from recommendation results.
  */
 
+const fs   = require('fs');
+const path = require('path');
+
 const {
   Document, Paragraph, TextRun, AlignmentType, BorderStyle,
   WidthType, ShadingType, TableRow, TableCell, Table,
-  LevelFormat, NumberFormat, VerticalAlign,
+  LevelFormat, NumberFormat, VerticalAlign, ImageRun,
 } = require('docx');
 
 const { THEME } = require('./theme');
 const { run, h1, h2, h3, p, spacer, divider, pageBreak, bullet, makeTable, makeHeader, makeFooter } = require('./helpers');
+
+const LOGO_PATH = path.join(__dirname, '../assets/logo.png');
+const logoBuffer = fs.existsSync(LOGO_PATH) ? fs.readFileSync(LOGO_PATH) : null;
 const { recommend } = require('./recommender');
 
 // ── Dose per m² conversion ────────────────────────────────────────────────────
@@ -71,11 +77,16 @@ function sectionCapa(result, data) {
 
   return [
     spacer(), spacer(),
-    new Paragraph({
+    // Logo
+    ...(logoBuffer ? [new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 240, after: 120 },
+      children: [new ImageRun({ data: logoBuffer, transformation: { width: 110, height: 97 } })],
+    })] : [new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { before: 480, after: 120 },
       children: [run('AGROSINTROPIA', { bold: true, size: THEME.size.cover, color: THEME.color.dark })],
-    }),
+    })]),
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { before: 60, after: 480 },
@@ -108,7 +119,7 @@ function sectionCapa(result, data) {
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { before: 240, after: 60 },
-      children: [run('Serra Grande, Uruçuca — Bahia, Brasil', { size: THEME.size.body, color: THEME.color.gray })],
+      children: [run('Goiânia — Goiás, Brasil', { size: THEME.size.body, color: THEME.color.gray })],
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
@@ -158,7 +169,7 @@ function sectionAviso() {
     spacer(),
     p('As recomendações são baseadas nos parâmetros informados e nas tabelas de referência técnica da Embrapa, CEPLAC e Manual de Adubação e Calagem da Bahia. As doses têm caráter orientativo e devem ser ajustadas conforme condições locais, histórico de manejo e disponibilidade regional de insumos.'),
     spacer(),
-    p('Fontes: Embrapa Mandioca e Fruticultura, CEPLAC (Ilhéus-BA), IAC, INCAPER, Manual de Adubação e Calagem para a Bahia, CFSEMG 5ª Aproximação.', { italics: true, size: THEME.size.small, color: THEME.color.gray }),
+    p('Fontes: Embrapa Mandioca e Fruticultura, CEPLAC (Ilhéus-BA), INCAPER, Manual de Adubação e Calagem para a Bahia (3ª ed.), CFSEMG 5ª Aproximação (1999), Boletim Técnico 100 – IAC (1997), SBCS/CQFS-RS/SC (2007).', { italics: true, size: THEME.size.small, color: THEME.color.gray }),
     pageBreak(),
   ];
 }
@@ -411,7 +422,7 @@ function sectionBiofertilizantes(result) {
 
 function sectionAdubacaoVerde(result) {
   const items = [
-    h1('6. ADUBAÇÃO VERDE, COBERTURA DO SOLO E HIDROGEL'),
+    h1('6. ADUBAÇÃO VERDE E COBERTURA DO SOLO'),
   ];
 
   if (result.adubacaoVerde && result.adubacaoVerde.length > 0) {
@@ -424,26 +435,6 @@ function sectionAdubacaoVerde(result) {
         result.adubacaoVerde.map(av => [av.especie, av.tipo, av.N, av.uso]),
         [2300, 1800, 1800, 3200],
       ),
-      spacer(),
-    );
-  }
-
-  if (result.hidrogel && result.hidrogel.recomendar) {
-    const hg = result.hidrogel;
-    items.push(
-      h2('6.2 Hidrogel Biodegradável (Plantios de Sequeiro)'),
-      p(hg.descricao),
-      spacer(),
-      makeTable(
-        ['Cultura / Situação', 'Dose recomendada por cova'],
-        hg.doses.map(d => [d.cultura, d.dose]),
-        [4500, 4600],
-      ),
-      spacer(),
-      h3('Modo de Aplicação:'),
-      p(hg.modo),
-      spacer(),
-      p(hg.obs, { italics: true, size: THEME.size.small, color: THEME.color.gray }),
       spacer(),
     );
   }
@@ -568,8 +559,48 @@ function sectionAssinatura(data) {
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      children: [run('Serra Grande, Uruçuca — Bahia, Brasil', { size: THEME.size.small, color: THEME.color.pale })],
+      children: [run('Goiânia — Goiás, Brasil', { size: THEME.size.small, color: THEME.color.pale })],
     }),
+  ];
+}
+
+// ── CTA section ───────────────────────────────────────────────────────────────
+
+function sectionCTA() {
+  return [
+    divider(),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 240, after: 120 },
+      children: [run('ASSESSORIA TÉCNICA ESPECIALIZADA EM SISTEMAS AGROFLORESTAIS', { bold: true, size: THEME.size.h2, color: THEME.color.dark })],
+    }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 80, after: 160 },
+      children: [run('Transforme sua propriedade em um sistema produtivo e regenerativo com a Agrosintropia.', { size: THEME.size.body, color: THEME.color.mid, italics: true })],
+    }),
+    makeTable(
+      ['Serviço', 'Descrição'],
+      [
+        ['Diagnóstico e Planejamento SAF', 'Levantamento da propriedade, análise de solo e projeto agroflorestal personalizado para sua realidade e objetivos.'],
+        ['Implantação e Manejo', 'Acompanhamento técnico na implantação de SAFs, seleção de espécies, tratos culturais e manejo ecológico.'],
+        ['Laudos e Recomendações', 'Interpretação de análises de solo e recomendações de adubação orgânica calibradas por cultura.'],
+        ['Capacitação e Cursos', 'Formações práticas em agroflorestas, sistemas radiculares e restauração produtiva.'],
+      ],
+      [3200, 5900],
+    ),
+    spacer(),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 120, after: 60 },
+      children: [run('📧  agrosintropia@gmail.com', { bold: true, size: THEME.size.body, color: THEME.color.dark })],
+    }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 60, after: 60 },
+      children: [run('📍  Goiânia — Goiás, Brasil', { size: THEME.size.body, color: THEME.color.mid })],
+    }),
+    spacer(),
   ];
 }
 
@@ -629,6 +660,7 @@ function buildLaudo(result, data) {
         ...sectionSAF(result),
         ...sectionProximosPassos(result),
         ...sectionObservacoes(data),
+        ...sectionCTA(),
         ...sectionAssinatura(data),
       ],
     }],
@@ -704,6 +736,7 @@ function buildLaudoMulti(data) {
     ...sectionSAF(mediaResult),
     ...sectionProximosPassos(mediaResult),
     ...sectionObservacoes(data),
+    ...sectionCTA(),
     ...sectionAssinatura(data),
   ];
 
